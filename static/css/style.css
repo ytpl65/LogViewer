@@ -1,0 +1,45 @@
+footer {
+    background-color: #f8f9fa;
+    text-align: center;
+    position:fixed;
+    left:0;
+    bottom:0;
+    width:100%;
+    
+}
+
+.dropdown-container{
+    background-color:blue;
+    height:auto;
+    width:100%;
+}
+
+#youtility_logs{
+    
+    display: none;
+    width: 100%;
+    
+    height: auto;
+}
+
+#mobileserives_logs{
+    display: none;
+    width: 100%;
+    height: 95vh;
+}
+
+#reports_logs{
+    display: none;
+    width: 100%;
+    height: 98vh;
+}
+
+#error_logs{
+    display: none;
+    width: 100%;
+    height: 200px;
+}
+
+footer .container p{
+    margin:0px;
+}
