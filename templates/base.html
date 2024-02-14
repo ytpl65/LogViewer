@@ -27,19 +27,9 @@
                           <li><a class="dropdown-item" id="youtility_logs_dropdown" >Youtility Logs</a></li>
                           <li><a class="dropdown-item" id="mobileserives_logs_dropdown" >Mobileservice Logs</a></li>
                           <li><a class="dropdown-item" id="reports_logs_dropdown" >Reports Logs</a></li>
+                          <li><a class="dropdown-item" id="errors_logs_dropdown">Error Logs</a></li>
                         </ul>
                     </li>
-
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          Error Logs
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                          <li><a class="dropdown-item" href="#">Youtility Error Logs</a></li>
-                          <li><a class="dropdown-item" href="#">Mobileservice Error Logs</a></li>
-                          <li><a class="dropdown-item" href="#">Reports Error Logs</a></li>
-                        </ul>
-                      </li>
                 </ul>
             </div>
         </div>
@@ -55,116 +45,20 @@
     </div>
     <div id="mobileserives_logs" class="custom-width">
         <table id = "mobileservice_logs_table">
-          <thead>
-            <tr>
-              <th>Timestamp</th>
-              <th>Log Level</th>
-              <th>Method Name</th>
-              <th>Log Message</th>
-              <th>Log Type</th>
-            </tr>
-          </thead>
+          <h1>Mobile</h1>
         </table>
     </div>
     <div id="reports_logs" class="custom-width">
       <table id="reports_logs_table">
-        <thead>
-          <tr>
-            <th>Timestamp</th>
-            <th>Log Level</th>
-            <th>Method Name</th>
-            <th>Log Message</th>
-            <th>Log Type</th>
-          </tr>
-        </thead>
+        <h1>Report</h1>
       </table>
     </div>
 
     <div id="error_logs" class="custom-width">
+      <table id = "error_logs_table">
+      </table>
     </div>
-
-    <!-- <footer>
-        <div class="container">
-            <p>&copy; 2024 Log Viewer | Youtiliity Software Solutions</p>
-        </div>
-        
-    </footer> -->
-
-  <script>
-    function toUserFriendlyTimeStamp(data, type, row){
-      if (type === 'display' || type === 'filter') {
-          var date = new Date(data);
-          return date.toLocaleString('en-US', {
-              year: 'numeric', month: 'short', day: 'numeric',
-              hour: '2-digit', minute: '2-digit', second: '2-digit',
-              hour12: true
-          });
-      }
-      return data; // Return unmodified data for sorting or type detection
-    }
-
-    function reduceLogMessage(data, type, row){
-      if (type === 'display'){
-        var newData = data.substring(0,30) + '...'
-        return newData
-      }
-    }
-
-    function addViewLink(data, type,row){
-        if (type === 'display') {
-          return '<a class="view" href="#">View</a>'
-        }
-    }
-document.getElementById('youtility_logs_dropdown').onclick = function () {
-    var page = 1
-    console.log('Youtility Logs Show')
-    document.getElementById('youtility_logs').style.display='block';
-    document.getElementById('mobileserives_logs').style.display='none';
-    document.getElementById('reports_logs').style.display='none';
-    $(document).ready(function() {
-        $('#youtility_logs_table').DataTable({
-
-            "processing": true,
-            "serverSide": true,
-            "ajax": {
-                "url": "/get-youtility-logs-data",
-                "type": "GET"
-            },
-            "columns": [
-                // Specify your column data here
-                { "data": "timestamp", "title": "Time Stamp"},
-                { "data": "log_level", "title": "Log Level" },
-                { "data": "method_name" , "title": "Method Name"},
-                { "data": "log_message", "title": "Log Message" },
-                {"data": "view", "title": "View"}
-                // Add or remove columns as per your actual data
-            ],
-            "columnDefs":[
-              {
-                targets:0,
-                "render": function(data, type, row){
-                  return toUserFriendlyTimeStamp(data, type, row)
-                }},
-              {
-                targets:3,
-                "render":function(data, type, row){
-                  return reduceLogMessage(data, type, row)
-                }
-              },
-              {
-                targets:4,
-                "render": function(data, type, row){
-                  return addViewLink(data,type,row)
-                }
-              }
-            ],
-        });
-    });
-
-}
-
-  </script>
-    <!-- Include Bootstrap JS -->
+ <!-- Include Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
     <script src="https://cdn.datatables.net/v/dt/dt-1.13.10/datatables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>

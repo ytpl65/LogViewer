@@ -26,7 +26,6 @@ def get_youtility_logs(request):
     youtility_logs_data = Youtility_logs.objects.all().order_by(order_by_field)
 
 
-
     if search_value:
         youtility_logs_data = youtility_logs_data.filter(
             Q(timestamp__icontains=search_value) | Q(log_level__icontains = search_value) |
@@ -55,10 +54,147 @@ def get_youtility_logs(request):
 
     return JsonResponse(response)
 
-def get_mobileservices_logs(request):
-    if request.method == 'GET':
-        mobileservices_logs = Mobileservices_logs.objects.order_by('-timestamp')[0:100]
-        logs_list = list(mobileservices_logs.values('timestamp','log_level','method_name','log_message'))
-        print(logs_list)
-    return JsonResponse({'logs':logs_list})
+# def get_mobileservices_logs(request):
+#     if request.method == 'GET':
+#         mobileservices_logs = Mobileservices_logs.objects.order_by('-timestamp')[0:100]
+#         logs_list = list(mobileservices_logs.values('timestamp','log_level','method_name','log_message'))
+#         print(logs_list)
+#     return JsonResponse({'logs':logs_list})
 
+
+def get_mobileservices_logs(request):
+    print("Received Ajax request")
+    draw = int(request.GET.get('draw',0))
+    start = int(request.GET.get('start', 0))
+    length = int(request.GET.get('length', 25))
+    search_value = request.GET.get('search[value]', '')
+    field_index = request.GET.get('order[0][column]')
+    field_name = request.GET.get(f'columns[{field_index}][data]')
+    direction = request.GET.get('order[0][dir]')
+
+    print(request.GET)
+    print(field_name)
+    order_by_field = f'-{field_name}' if direction == 'desc' else field_name
+    mobileservice_logs_data = Mobileservices_logs.objects.all().order_by(order_by_field)
+
+
+
+    if search_value:
+        mobileservice_logs_data = mobileservice_logs_data.filter(
+            Q(timestamp__icontains=search_value) | Q(log_level__icontains = search_value) |
+            Q(method_name__icontains=search_value) |  Q(log_message__icontains = search_value) |
+            Q(log_file_type_name__icontains = search_value) )
+
+    paginator = Paginator(mobileservice_logs_data,length)
+    page_number = (start // length) +1
+    page_obj = paginator.get_page(page_number)
+
+    data = []
+    for obj in page_obj:
+        data.append({
+            "timestamp":obj.timestamp,
+            "log_level":obj.log_level,
+            "method_name":obj.method_name,
+            "log_message":obj.log_message,
+            "view": None
+        })
+    response = {
+        'draw':draw,
+        'recordsTotal':mobileservice_logs_data.count(),
+        'recordsFiltered':mobileservice_logs_data.count(),
+        'data':data
+    }
+
+    return JsonResponse(response)
+
+
+def get_reports_logs(request):
+    draw = int(request.GET.get('draw',0))
+    start = int(request.GET.get('start', 0))
+    length = int(request.GET.get('length', 25))
+    search_value = request.GET.get('search[value]', '')
+    field_index = request.GET.get('order[0][column]')
+    field_name = request.GET.get(f'columns[{field_index}][data]')
+    direction = request.GET.get('order[0][dir]')
+    print(request.GET)
+    print(field_name)
+    order_by_field = f'-{field_name}' if direction == 'desc' else field_name
+    print(order_by_field)
+    reports_logs_data = Reports_logs.objects.all().order_by(order_by_field)
+
+
+    if search_value:
+        reports_logs_data = reports_logs_data.filter(
+            Q(timestamp__icontains=search_value) | Q(log_level__icontains = search_value)|
+            Q(method_name__icontains = search_value) | Q(log_message__icontains = search_value) |
+            Q(log_file_type_name__icontains = search_value)
+        )
+
+    pagintor = Paginator(reports_logs_data, length)
+    page_number = (start // length ) + 1
+    page_obj = pagintor.get_page(page_number)
+
+    data = []
+    for obj in page_obj:
+        data.append({
+            "timestamp":obj.timestamp,
+            "log_level":obj.log_level,
+            "method_name":obj.method_name,
+            "log_message":obj.log_message,
+            "view": None
+        })
+    response = {
+        'draw':draw,
+        'recordsTotal':reports_logs_data.count(),
+        'recordsFiltered':reports_logs_data.count(),
+        'data':data
+    }
+
+    return JsonResponse(response)
+
+def get_error_logs(request):
+    draw = int(request.GET.get('draw',0))
+    start = int(request.GET.get('start', 0))
+    length = int(request.GET.get('length', 25))
+    search_value = request.GET.get('search[value]', '')
+    field_index = request.GET.get('order[0][column]')
+    field_name = request.GET.get(f'columns[{field_index}][data]')
+    direction = request.GET.get('order[0][dir]')
+    
+    order_by_field = f'-{field_name}' if direction == 'desc' else field_name
+    error_logs_data = Error_logs.objects.all().order_by(order_by_field)
+
+
+    if search_value:
+        error_logs_data = error_logs_data.filter(
+            Q(timestamp__icontains=search_value) | Q(log_level__icontains = search_value)|
+            Q(method_name__icontains = search_value) | Q(log_message__icontains = search_value) |
+            Q(log_file_type_name__icontains = search_value) | Q(traceback__icontains = search_value) |
+            Q(exceptionName__icontains = search_value) | Q(log_file_type_name__icontains = search_value)
+        )
+
+    paginator = Paginator(error_logs_data,length)
+    page_number = (start//length)+1
+    page_obj = paginator.get_page(page_number)
+
+    data = []
+    for obj in page_obj:
+        data.append({
+            "timestamp":obj.timestamp,
+            "log_level":obj.log_level,
+            "method_name":obj.method_name,
+            "log_message":obj.log_message,
+            "traceback":obj.traceback,
+            "exceptionName":obj.exceptionName,
+            "log_file_type_name":obj.log_file_type_name,
+            "view": None
+        })
+
+    response = {
+        'draw':draw,
+        'recordsTotal':error_logs_data.count(),
+        'recordsFiltered':error_logs_data.count(),
+        'data':data
+    }
+
+    return JsonResponse(response)

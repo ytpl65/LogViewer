@@ -37,7 +37,7 @@ footer {
 #error_logs{
     display: none;
     width: 100%;
-    height: 200px;
+    height: 98VH;
 }
 
 footer .container p{
