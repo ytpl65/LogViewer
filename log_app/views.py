@@ -18,21 +18,27 @@ def get_youtility_logs(request):
     print(request.GET)
     print(field_name)
     direction = request.GET.get('order[0][dir]')
-
-    print(direction)
-
     
     order_by_field = f'-{field_name}' if direction == 'desc' else field_name
-    youtility_logs_data = Youtility_logs.objects.all().order_by(order_by_field)
+    filter = {}
+    for i in range(4):
+        column_search_value = request.GET.get(f'columns[{i}][search][value]',None)
+        if column_search_value:
+            if i == 0:
+                filter['timestamp__icontains'] = column_search_value
+            elif i == 1:
+                filter['log_level__icontains'] = column_search_value
+            elif i == 2:
+                filter['method_name__icontains'] = column_search_value
+            elif i == 3:
+                filter['log_message__icontains'] = column_search_value
 
-
-    if search_value:
-        youtility_logs_data = youtility_logs_data.filter(
-            Q(timestamp__icontains=search_value) | Q(log_level__icontains = search_value) |
-            Q(method_name__icontains=search_value) |  Q(log_message__icontains = search_value) |
-            Q(log_file_type_name__icontains = search_value) )
-
-    paginator = Paginator(youtility_logs_data,length)
+    if filter:
+        log_entries = Youtility_logs.objects.filter(**filter)
+    else:
+        log_entries = Youtility_logs.objects.all().order_by(order_by_field)
+    print("Log Entries",str(log_entries.query))
+    paginator = Paginator(log_entries,length)
     page_number = (start // length) +1
     page_obj = paginator.get_page(page_number)
 
@@ -47,11 +53,10 @@ def get_youtility_logs(request):
         })
     response = {
         'draw':draw,
-        'recordsTotal':youtility_logs_data.count(),
-        'recordsFiltered':youtility_logs_data.count(),
+        'recordsTotal':log_entries.count(),
+        'recordsFiltered':log_entries.count(),
         'data':data
     }
-
     return JsonResponse(response)
 
 # def get_mobileservices_logs(request):
@@ -72,20 +77,28 @@ def get_mobileservices_logs(request):
     field_name = request.GET.get(f'columns[{field_index}][data]')
     direction = request.GET.get('order[0][dir]')
 
-    print(request.GET)
-    print(field_name)
+
     order_by_field = f'-{field_name}' if direction == 'desc' else field_name
-    mobileservice_logs_data = Mobileservices_logs.objects.all().order_by(order_by_field)
+    filter = {}
 
+    for i in range(4):
+        column_search_value = request.GET.get(f'columns[{i}][search][value]',None)
+        if column_search_value:
+            if i == 0:
+                filter['timestamp__icontains'] = column_search_value
+            elif i == 1:
+                filter['log_level__icontains'] = column_search_value
+            elif i == 2:
+                filter['method_name__icontains'] = column_search_value
+            elif i == 3:
+                filter['log_message__icontains'] = column_search_value
 
+    if filter:
+        log_entries = Mobileservices_logs.objects.filter(**filter)
+    else:
+        log_entries = Mobileservices_logs.objects.all().order_by(order_by_field)
 
-    if search_value:
-        mobileservice_logs_data = mobileservice_logs_data.filter(
-            Q(timestamp__icontains=search_value) | Q(log_level__icontains = search_value) |
-            Q(method_name__icontains=search_value) |  Q(log_message__icontains = search_value) |
-            Q(log_file_type_name__icontains = search_value) )
-
-    paginator = Paginator(mobileservice_logs_data,length)
+    paginator = Paginator(log_entries,length)
     page_number = (start // length) +1
     page_obj = paginator.get_page(page_number)
 
@@ -100,8 +113,8 @@ def get_mobileservices_logs(request):
         })
     response = {
         'draw':draw,
-        'recordsTotal':mobileservice_logs_data.count(),
-        'recordsFiltered':mobileservice_logs_data.count(),
+        'recordsTotal':log_entries.count(),
+        'recordsFiltered':log_entries.count(),
         'data':data
     }
 
@@ -123,12 +136,12 @@ def get_reports_logs(request):
     reports_logs_data = Reports_logs.objects.all().order_by(order_by_field)
 
 
-    if search_value:
-        reports_logs_data = reports_logs_data.filter(
-            Q(timestamp__icontains=search_value) | Q(log_level__icontains = search_value)|
-            Q(method_name__icontains = search_value) | Q(log_message__icontains = search_value) |
-            Q(log_file_type_name__icontains = search_value)
-        )
+    # if search_value:
+    #     reports_logs_data = reports_logs_data.filter(
+    #         Q(timestamp__icontains=search_value) | Q(log_level__icontains = search_value)|
+    #         Q(method_name__icontains = search_value) | Q(log_message__icontains = search_value) |
+    #         Q(log_file_type_name__icontains = search_value)
+    #     )
 
     pagintor = Paginator(reports_logs_data, length)
     page_number = (start // length ) + 1
@@ -165,13 +178,13 @@ def get_error_logs(request):
     error_logs_data = Error_logs.objects.all().order_by(order_by_field)
 
 
-    if search_value:
-        error_logs_data = error_logs_data.filter(
-            Q(timestamp__icontains=search_value) | Q(log_level__icontains = search_value)|
-            Q(method_name__icontains = search_value) | Q(log_message__icontains = search_value) |
-            Q(log_file_type_name__icontains = search_value) | Q(traceback__icontains = search_value) |
-            Q(exceptionName__icontains = search_value) | Q(log_file_type_name__icontains = search_value)
-        )
+    # if search_value:
+    #     error_logs_data = error_logs_data.filter(
+    #         Q(timestamp__icontains=search_value) | Q(log_level__icontains = search_value)|
+    #         Q(method_name__icontains = search_value) | Q(log_message__icontains = search_value) |
+    #         Q(log_file_type_name__icontains = search_value) | Q(traceback__icontains = search_value) |
+    #         Q(exceptionName__icontains = search_value) | Q(log_file_type_name__icontains = search_value)
+    #     )
 
     paginator = Paginator(error_logs_data,length)
     page_number = (start//length)+1

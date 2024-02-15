@@ -38,22 +38,30 @@ document.getElementById('youtility_logs_dropdown').onclick = function () {
   document.getElementById('error_logs').style.display='none';
   console.log("Server Side Code")
   $(document).ready(function() {
-      $('#youtility_logs_table').DataTable({
-          "orderCellsTop":true,
-          "fixedHeader": true,
+      var table = $('#youtility_logs_table').DataTable({
           "processing": true,
           "serverSide": true,
           "ajax": {
               "url": "/get-youtility-logs-data",
-              "type": "GET"
+              "type": "GET",
+              "data": function(d) {
+                // Add custom search terms for each column to the request data
+                $('#youtility_logs_table thead tr:eq(0) th input').each(function(i) {
+                    var val = $(this).val();
+                    if(val){
+                        d['columns[' + i + '][search][value]'] = val;
+                    }
+                });
+            }
           },
+          "searching":false,
           "columns": [
               // Specify your column data here
-              { "data": "timestamp", "title": "Time Stamp"},
-              { "data": "log_level", "title": "Log Level" },
-              { "data": "method_name" , "title": "Method Name"},
-              { "data": "log_message", "title": "Log Message" },
-              {"data": "view", "title": "View"}
+              { "data": "timestamp"},
+              { "data": "log_level"},
+              { "data": "method_name"},
+              { "data": "log_message"},
+              {"data": "view"}
               // Add or remove columns as per your actual data
           ],
           "columnDefs":[
@@ -81,8 +89,23 @@ document.getElementById('youtility_logs_dropdown').onclick = function () {
                 "orderable":false,
                 "searchable":false
             }
-          ]
+          ],
       });
+      $('#youtility_logs_table thead tr:eq(0) th input').on('keypress', function(e) {
+        if (e.keyCode == 13) { // Enter key
+            table.draw();
+        }
+    });
+    //   $('#youtility_logs_table thead tr:eq(0) th input').each(function(i){
+    //     $(this).on('keypress', function(e) {
+    //         if (e.keyCode == 13){
+    //             var val = this.value;
+    //             if (table.column(i).search() !== val){
+    //                 table.column(i).search(val).draw();
+    //             }
+    //         }
+    //     })
+    //   })
   });
 
 }
@@ -102,8 +125,18 @@ document.getElementById('mobileserives_logs_dropdown').onclick = function () {
           "serverSide": true,
           "ajax": {
               "url": "/get-mobileservice-logs-data",
-              "type": "GET"
+              "type": "GET",
+              "data": function(d) {
+                // Add custom search terms for each column to the request data
+                $('#mobileservice_logs_table thead tr:eq(0) th input').each(function(i) {
+                    var val = $(this).val();
+                    if(val){
+                        d['columns[' + i + '][search][value]'] = val;
+                    }
+                });
+            }
           },
+          "searching":false,
           "columns": [
               // Specify your column data here
               { "data": "timestamp", "title": "Time Stamp"},
@@ -135,6 +168,11 @@ document.getElementById('mobileserives_logs_dropdown').onclick = function () {
             },
           ],
       });
+      $('#mobileservice_logs_table thead tr:eq(0) th input').on('keypress', function(e) {
+        if (e.keyCode == 13) { // Enter key
+            table.draw();
+        }
+    });
   });
 
 }
@@ -159,10 +197,6 @@ document.getElementById('reports_logs_dropdown').onclick = function () {
                 "url":"/get-reports-logs",
                 'type':"GET"
             },
-            // "dom": 'Qfrtip',
-            // "search": {
-            //     return: true
-            // },
             "columns": [
                 {"data":"timestamp", "title":"Time Stamp"},
                 { "data": "log_level", "title": "Log Level" },
@@ -192,7 +226,7 @@ document.getElementById('reports_logs_dropdown').onclick = function () {
                     }
                 },
             ]
-        })
+        });
     })
 }
 
