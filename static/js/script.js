@@ -10,7 +10,6 @@ function toUserFriendlyTimeStamp(data, type, row){
     return data; // Return unmodified data for sorting or type detection
   }
 
-
   function reduceTextLength(data, type, row){
     if (type === 'display') {
         if (data && typeof data === 'string') {
@@ -21,7 +20,6 @@ function toUserFriendlyTimeStamp(data, type, row){
     return data; // Ensure data is returned for all types.
 }
 
-
   function addViewLink(data, type, row){
     if (type === 'display') {
         return '<a class="view" href="#">View</a>'; // Assuming you want to always display the link for viewing details.
@@ -30,54 +28,40 @@ function toUserFriendlyTimeStamp(data, type, row){
 }
 
 document.getElementById('youtility_logs_dropdown').onclick = function () {
-  var page = 1
   console.log('Youtility Logs Show')
   document.getElementById('youtility_logs').style.display='block';
   document.getElementById('mobileserives_logs').style.display='none';
   document.getElementById('reports_logs').style.display='none';
   document.getElementById('error_logs').style.display='none';
   console.log("Server Side Code")
-  $(document).ready(function() {
-      var table = $('#youtility_logs_table').DataTable({
+    var table = $('#youtility_logs_table').DataTable({
           "processing": true,
           "serverSide": true,
           "ajax": {
               "url": "/get-youtility-logs-data",
-              "type": "GET",
-              "data": function(d) {
-                // Add custom search terms for each column to the request data
-                $('#youtility_logs_table thead tr:eq(0) th input').each(function(i) {
-                    var val = $(this).val();
-                    if(val){
-                        d['columns[' + i + '][search][value]'] = val;
-                    }
-                });
-            }
+              "type": "GET"
           },
-          "searching":false,
           "columns": [
-              // Specify your column data here
               { "data": "timestamp"},
               { "data": "log_level"},
               { "data": "method_name"},
               { "data": "log_message"},
               {"data": "view"}
-              // Add or remove columns as per your actual data
           ],
           "columnDefs":[
             {
-              targets:0,
+            targets:0,
               "render": function(data, type, row){
                 return toUserFriendlyTimeStamp(data, type, row)
               }},
             {
-              targets:3,
+            targets:3,
               "render":function(data, type, row){
                 return reduceTextLength(data, type, row)
               }
             },
             {
-              targets:4,
+            targets:4,
             "orderable":false,
             "searchable":false,
             "render": function(data, type, row){
@@ -85,30 +69,25 @@ document.getElementById('youtility_logs_dropdown').onclick = function () {
               }
             },
             {
-                targets:4,
-                "orderable":false,
-                "searchable":false
+            targets:4,
+            "orderable":false,
+            "searchable":false
             }
           ],
       });
-      $('#youtility_logs_table thead tr:eq(0) th input').on('keypress', function(e) {
-        if (e.keyCode == 13) { // Enter key
-            table.draw();
-        }
+    
+    $('#youtility_logs_table thead tr:eq(0) th input').each(function(i) {
+        $(this).on('keypress', function(e) {
+            if (e.keyCode == 13) {
+                var val = this.value;
+                if (table.column(i).search() !== val) {
+                    table.column(i).search(val).draw();
+                }
+            }
+        });
     });
-    //   $('#youtility_logs_table thead tr:eq(0) th input').each(function(i){
-    //     $(this).on('keypress', function(e) {
-    //         if (e.keyCode == 13){
-    //             var val = this.value;
-    //             if (table.column(i).search() !== val){
-    //                 table.column(i).search(val).draw();
-    //             }
-    //         }
-    //     })
-    //   })
-  });
+};
 
-}
 
 // mobileservicelogs
 document.getElementById('mobileserives_logs_dropdown').onclick = function () {
@@ -119,24 +98,13 @@ document.getElementById('mobileserives_logs_dropdown').onclick = function () {
   document.getElementById('error_logs').style.display='none';
   
   $(document).ready(function() {
-    
-      $('#mobileservice_logs_table').DataTable({
+  var table = $('#mobileservice_logs_table').DataTable({
           "processing": true,
           "serverSide": true,
           "ajax": {
               "url": "/get-mobileservice-logs-data",
-              "type": "GET",
-              "data": function(d) {
-                // Add custom search terms for each column to the request data
-                $('#mobileservice_logs_table thead tr:eq(0) th input').each(function(i) {
-                    var val = $(this).val();
-                    if(val){
-                        d['columns[' + i + '][search][value]'] = val;
-                    }
-                });
-            }
+              "type": "GET"
           },
-          "searching":false,
           "columns": [
               // Specify your column data here
               { "data": "timestamp", "title": "Time Stamp"},
@@ -168,16 +136,19 @@ document.getElementById('mobileserives_logs_dropdown').onclick = function () {
             },
           ],
       });
-      $('#mobileservice_logs_table thead tr:eq(0) th input').on('keypress', function(e) {
-        if (e.keyCode == 13) { // Enter key
-            table.draw();
-        }
-    });
+    $('#mobileservice_logs_table thead tr:eq(0) th input').each(function(i) {
+        $(this).on('keypress', function(e) {
+            if (e.keyCode == 13){
+                var val = this.value;
+                if (table.column(i).search()!== val){
+                    table.column(i).search(val).draw();
+                }
+            }
+        })
+    })
   });
 
 }
-
-
 
 document.getElementById('reports_logs_dropdown').onclick = function () {
     console.log('Youtility Logs Show')
@@ -188,7 +159,7 @@ document.getElementById('reports_logs_dropdown').onclick = function () {
     console.log("Outside Ajax Code")
     $(document).ready(function () {
         console.log("Inside")
-        $('#reports_logs_table').DataTable(
+    var table = $('#reports_logs_table').DataTable(
             {
                 
             "processing":true,
@@ -197,6 +168,10 @@ document.getElementById('reports_logs_dropdown').onclick = function () {
                 "url":"/get-reports-logs",
                 'type':"GET"
             },
+            // "dom": 'Qfrtip',
+            // "search": {
+            //     return: true
+            // },
             "columns": [
                 {"data":"timestamp", "title":"Time Stamp"},
                 { "data": "log_level", "title": "Log Level" },
@@ -226,7 +201,17 @@ document.getElementById('reports_logs_dropdown').onclick = function () {
                     }
                 },
             ]
-        });
+        })
+    $('#reports_logs_table thead tr:eq(0) th input').each(function(i){
+        $(this).on('keypress', function(e){
+            if (e.keyCode == 13){
+                var val = this.value;
+                if (table.column(i).search() !== val){
+                    table.column(i).search(val).draw();
+                }
+            }
+        })
+    })
     })
 }
 
@@ -238,7 +223,7 @@ document.getElementById('errors_logs_dropdown').onclick = function (){
     document.getElementById('error_logs').style.display='block';
     console.log("Starting Datablae Code")
     $(document).ready(function (){
-        $('#error_logs_table').DataTable(
+    var table = $('#error_logs_table').DataTable(
             {
                 "processing":true,
                 "serverSide":true,
@@ -292,5 +277,15 @@ document.getElementById('errors_logs_dropdown').onclick = function (){
                 ]            
             }
         )
+    $('#error_logs_table thead tr:eq(0) th input').each(function(i) {
+        $(this).on('keypress', function(e) {
+            if (e.keyCode == 13) {
+                var val = this.value;
+                if (table.column(i).search() !== val){
+                    table.column(i).search(val).draw();
+                }
+            }
+        })
+    })
     })
 }

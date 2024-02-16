@@ -12,17 +12,15 @@ def get_youtility_logs(request):
     draw = int(request.GET.get('draw',0))
     start = int(request.GET.get('start', 0))
     length = int(request.GET.get('length', 25))
-    search_value = request.GET.get('search[value]', '')
     field_index = request.GET.get('order[0][column]')
     field_name = request.GET.get(f'columns[{field_index}][data]')
-    print(request.GET)
-    print(field_name)
     direction = request.GET.get('order[0][dir]')
     
     order_by_field = f'-{field_name}' if direction == 'desc' else field_name
     filter = {}
     for i in range(4):
         column_search_value = request.GET.get(f'columns[{i}][search][value]',None)
+        print("Coulmn Search Value", column_search_value)
         if column_search_value:
             if i == 0:
                 filter['timestamp__icontains'] = column_search_value
@@ -59,25 +57,15 @@ def get_youtility_logs(request):
     }
     return JsonResponse(response)
 
-# def get_mobileservices_logs(request):
-#     if request.method == 'GET':
-#         mobileservices_logs = Mobileservices_logs.objects.order_by('-timestamp')[0:100]
-#         logs_list = list(mobileservices_logs.values('timestamp','log_level','method_name','log_message'))
-#         print(logs_list)
-#     return JsonResponse({'logs':logs_list})
-
 
 def get_mobileservices_logs(request):
     print("Received Ajax request")
     draw = int(request.GET.get('draw',0))
     start = int(request.GET.get('start', 0))
     length = int(request.GET.get('length', 25))
-    search_value = request.GET.get('search[value]', '')
     field_index = request.GET.get('order[0][column]')
     field_name = request.GET.get(f'columns[{field_index}][data]')
     direction = request.GET.get('order[0][dir]')
-
-
     order_by_field = f'-{field_name}' if direction == 'desc' else field_name
     filter = {}
 
@@ -97,7 +85,7 @@ def get_mobileservices_logs(request):
         log_entries = Mobileservices_logs.objects.filter(**filter)
     else:
         log_entries = Mobileservices_logs.objects.all().order_by(order_by_field)
-
+    print(str(log_entries.query))
     paginator = Paginator(log_entries,length)
     page_number = (start // length) +1
     page_obj = paginator.get_page(page_number)
@@ -125,27 +113,34 @@ def get_reports_logs(request):
     draw = int(request.GET.get('draw',0))
     start = int(request.GET.get('start', 0))
     length = int(request.GET.get('length', 25))
-    search_value = request.GET.get('search[value]', '')
     field_index = request.GET.get('order[0][column]')
     field_name = request.GET.get(f'columns[{field_index}][data]')
     direction = request.GET.get('order[0][dir]')
-    print(request.GET)
-    print(field_name)
     order_by_field = f'-{field_name}' if direction == 'desc' else field_name
-    print(order_by_field)
-    reports_logs_data = Reports_logs.objects.all().order_by(order_by_field)
 
+    filter = {}
 
-    # if search_value:
-    #     reports_logs_data = reports_logs_data.filter(
-    #         Q(timestamp__icontains=search_value) | Q(log_level__icontains = search_value)|
-    #         Q(method_name__icontains = search_value) | Q(log_message__icontains = search_value) |
-    #         Q(log_file_type_name__icontains = search_value)
-    #     )
+    for i in range(4):
+        column_search_value = request.GET.get(f'columns[{i}][search][value]', None)
+        if column_search_value:
+            if i==0:
+                filter['timestamp__icontains'] = column_search_value
+            elif i==1:
+                filter['log_level__icontains'] = column_search_value
+            elif i==2:
+                filter['method_name__icontains'] = column_search_value
+            elif i==3:
+                filter['log_message__icontains'] = column_search_value
 
-    pagintor = Paginator(reports_logs_data, length)
+    if filter:
+        log_entries = Reports_logs.objects.filter(**filter)
+    else:
+        log_entries = Reports_logs.objects.all().order_by(order_by_field)
+    
+    pagintor = Paginator(log_entries, length)
     page_number = (start // length ) + 1
     page_obj = pagintor.get_page(page_number)
+
 
     data = []
     for obj in page_obj:
@@ -158,8 +153,8 @@ def get_reports_logs(request):
         })
     response = {
         'draw':draw,
-        'recordsTotal':reports_logs_data.count(),
-        'recordsFiltered':reports_logs_data.count(),
+        'recordsTotal':log_entries.count(),
+        'recordsFiltered':log_entries.count(),
         'data':data
     }
 
@@ -169,27 +164,39 @@ def get_error_logs(request):
     draw = int(request.GET.get('draw',0))
     start = int(request.GET.get('start', 0))
     length = int(request.GET.get('length', 25))
-    search_value = request.GET.get('search[value]', '')
     field_index = request.GET.get('order[0][column]')
     field_name = request.GET.get(f'columns[{field_index}][data]')
     direction = request.GET.get('order[0][dir]')
     
     order_by_field = f'-{field_name}' if direction == 'desc' else field_name
-    error_logs_data = Error_logs.objects.all().order_by(order_by_field)
 
+    filter = {} 
+    for i in range(4):
+        column_search_value = request.GET.get(f'columns[{i}][search][value]',None)
+        if column_search_value:
+            if i==0:
+                filter['timestamp__icontains'] = column_search_value
+            elif i == 1:
+                filter['log_level__icontains'] = column_search_value
+            elif i == 2:
+                filter['method_name__icontains'] = column_search_value
+            elif i == 3:
+                filter['log_message__icontains'] = column_search_value
+            elif i==4:
+                filter['traceback__icontains'] = column_search_value
+            elif i==5:
+                filter['exceptionName__icontains'] = column_search_value
+            elif i==6:
+                filter['log_file_type_name__icontains'] = column_search_value
 
-    # if search_value:
-    #     error_logs_data = error_logs_data.filter(
-    #         Q(timestamp__icontains=search_value) | Q(log_level__icontains = search_value)|
-    #         Q(method_name__icontains = search_value) | Q(log_message__icontains = search_value) |
-    #         Q(log_file_type_name__icontains = search_value) | Q(traceback__icontains = search_value) |
-    #         Q(exceptionName__icontains = search_value) | Q(log_file_type_name__icontains = search_value)
-    #     )
+    if filter:
+        log_entries = Error_logs.objects.filter(**filter)
+    else:
+        log_entries = Error_logs.objects.all().order_by(order_by_field)
 
-    paginator = Paginator(error_logs_data,length)
+    paginator = Paginator(log_entries,length)
     page_number = (start//length)+1
     page_obj = paginator.get_page(page_number)
-
     data = []
     for obj in page_obj:
         data.append({
@@ -202,12 +209,10 @@ def get_error_logs(request):
             "log_file_type_name":obj.log_file_type_name,
             "view": None
         })
-
     response = {
         'draw':draw,
-        'recordsTotal':error_logs_data.count(),
-        'recordsFiltered':error_logs_data.count(),
+        'recordsTotal':log_entries.count(),
+        'recordsFiltered':log_entries.count(),
         'data':data
     }
-
     return JsonResponse(response)
