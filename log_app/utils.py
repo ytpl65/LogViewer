@@ -3,7 +3,9 @@ import os
 from .models import Mobileservices_logs,Youtility_logs,Reports_logs,Error_logs
 from django.utils.dateparse import parse_datetime
 from django.utils import timezone
-import datetime
+from datetime import datetime
+import pytz 
+
 
 def get_file_names(dir_path:str)->[list,list,list]:
     """ 
@@ -183,8 +185,36 @@ def inserting_into_error_table(error_log):
         log_entry.save()
         print("Record Inserting Errors logs")
 
-def get_log_file_name():
-    pass
+
+def return_start_end_date(date_str):
+    date_str_split = date_str.split(' to ')
+    start_date = date_str_split[0]
+    end_date = date_str_split[1]
+    return start_date,end_date
+
+
+def convert_string_date_to_date_time(date_str):
+    date_format = '%Y-%m-%d %H:%M:%S'
+    date_obj = datetime.strptime(date_str,date_format)
+    return date_obj
+
+
+def convert_date_to_utc(date_obj):
+    ist = pytz.timezone('Asia/Kolkata')
+    date_obj_ist = ist.localize(date_obj)
+    date_obj_utc = date_obj_ist.astimezone(pytz.utc) 
+    return date_obj_utc
+
+def get_start_and_end_date(date_str):
+    start_date , end_date = return_start_end_date(date_str)
+    start_date_obj = convert_string_date_to_date_time(start_date)
+    end_date_obj = convert_string_date_to_date_time(end_date)
+    start_date_utc = convert_date_to_utc(start_date_obj)
+    end_date_utc = convert_date_to_utc(end_date_obj)
+    return start_date_utc, end_date_utc
+
+
+
 
 
 

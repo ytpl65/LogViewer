@@ -3,6 +3,7 @@ from django.http import JsonResponse,HttpResponse
 from .models import Youtility_logs,Mobileservices_logs,Reports_logs,Error_logs
 from django.db.models import Q
 # Create your views here.
+from .utils import get_start_and_end_date
 from django.core.paginator import Paginator
 def home(request):
     return render(request,'log_select.html')
@@ -23,14 +24,17 @@ def get_youtility_logs(request):
         print("Coulmn Search Value", column_search_value)
         if column_search_value:
             if i == 0:
-                filter['timestamp__icontains'] = column_search_value
+                start_date, end_date = get_start_and_end_date(column_search_value)
+                print("Start Date",start_date)
+                print("End Date", end_date)
+                filter['timestamp__range'] = (start_date,end_date)
             elif i == 1:
                 filter['log_level__icontains'] = column_search_value
             elif i == 2:
                 filter['method_name__icontains'] = column_search_value
             elif i == 3:
                 filter['log_message__icontains'] = column_search_value
-
+    print(filter)
     if filter:
         log_entries = Youtility_logs.objects.filter(**filter)
     else:
@@ -73,7 +77,10 @@ def get_mobileservices_logs(request):
         column_search_value = request.GET.get(f'columns[{i}][search][value]',None)
         if column_search_value:
             if i == 0:
-                filter['timestamp__icontains'] = column_search_value
+                start_date, end_date = get_start_and_end_date(column_search_value)
+                print("Start Date",start_date)
+                print("End Date", end_date)
+                filter['timestamp__range'] = (start_date,end_date)
             elif i == 1:
                 filter['log_level__icontains'] = column_search_value
             elif i == 2:
@@ -124,7 +131,10 @@ def get_reports_logs(request):
         column_search_value = request.GET.get(f'columns[{i}][search][value]', None)
         if column_search_value:
             if i==0:
-                filter['timestamp__icontains'] = column_search_value
+                start_date, end_date = get_start_and_end_date(column_search_value)
+                print("Start Date",start_date)
+                print("End Date", end_date)
+                filter['timestamp__range'] = (start_date,end_date)
             elif i==1:
                 filter['log_level__icontains'] = column_search_value
             elif i==2:
@@ -175,7 +185,10 @@ def get_error_logs(request):
         column_search_value = request.GET.get(f'columns[{i}][search][value]',None)
         if column_search_value:
             if i==0:
-                filter['timestamp__icontains'] = column_search_value
+                start_date, end_date = get_start_and_end_date(column_search_value)
+                print("Start Date",start_date)
+                print("End Date", end_date)
+                filter['timestamp__range'] = (start_date,end_date)
             elif i == 1:
                 filter['log_level__icontains'] = column_search_value
             elif i == 2:

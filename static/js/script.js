@@ -1,3 +1,13 @@
+
+flatpickr("#datetimepicker",
+              {
+          mode: "range",
+          enableTime: true,
+          dateFormat: "Y-m-d H:i:S",
+      }
+        );
+
+
 function toUserFriendlyTimeStamp(data, type, row){
     if (type === 'display' || type === 'filter') {
         var date = new Date(data);
@@ -48,6 +58,7 @@ document.getElementById('youtility_logs_dropdown').onclick = function () {
               { "data": "log_message"},
               {"data": "view"}
           ],
+          dom: 'lrtip',
           "columnDefs":[
             {
             targets:0,
@@ -99,6 +110,7 @@ document.getElementById('mobileserives_logs_dropdown').onclick = function () {
   
   $(document).ready(function() {
   var table = $('#mobileservice_logs_table').DataTable({
+           dom: 'lrtip',
           "processing": true,
           "serverSide": true,
           "ajax": {
@@ -161,7 +173,7 @@ document.getElementById('reports_logs_dropdown').onclick = function () {
         console.log("Inside")
     var table = $('#reports_logs_table').DataTable(
             {
-                
+            dom: 'lrtip',
             "processing":true,
             "serverSide":true,
             "ajax":{
@@ -225,6 +237,7 @@ document.getElementById('errors_logs_dropdown').onclick = function (){
     $(document).ready(function (){
     var table = $('#error_logs_table').DataTable(
             {
+                dom: 'lrtip',
                 "processing":true,
                 "serverSide":true,
                 "ajax":{
