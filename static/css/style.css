@@ -47,3 +47,18 @@ footer .container p{
 label, input{ 
     display: none;
 } */
+
+
+.modal-table td {
+    vertical-align: top;
+    text-align: left; 
+    white-space: pre-wrap;
+    padding: 10px;
+    overflow-x: auto;
+}
+
+.log-message {
+    text-align: left; 
+    white-space: pre-wrap;
+    overflow-x: auto;
+}

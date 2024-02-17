@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse,HttpResponse
 from .models import Youtility_logs,Mobileservices_logs,Reports_logs,Error_logs
 from django.db.models import Q
+import json 
 # Create your views here.
 from .utils import get_start_and_end_date
 from django.core.paginator import Paginator
@@ -234,16 +235,31 @@ def get_particular_data(request, pk,log_type, is_error_table):
     print(type(is_error_table),is_error_table)
     if is_error_table == 'true':
         print("Error log", pk)
-        log_data = Error_logs.objects.filter(id=pk,log_file_type_name=log_type)
+        log_data = Error_logs.objects.get(id=pk,log_file_type_name=log_type)
+        response = {
+            'timestamp':log_data.timestamp,
+            'log_level':log_data.log_level,
+            'method_name':log_data.method_name,
+            'log_message':log_data.log_message,
+            'traceback':log_data.traceback,
+            'exceptionname':log_data.exceptionName,
+            'log_type':log_data.log_file_type_name
+        }
     else:
         if log_type=='youtility4':
             print("youtility log",pk)
-            log_data = Youtility_logs.objects.filter(id=pk)
+            log_data = Youtility_logs.objects.get(id=pk)
         elif log_type == 'mobileservice':
             print("Mobile log",pk)
-            log_data = Mobileservices_logs.objects.filter(id=pk)
+            log_data = Mobileservices_logs.objects.get(id=pk)
         else:
             print("Report log",pk)
-            log_data = Reports_logs.objects.filter(id=pk)
-    print("Log Data",log_data[0].timestamp, log_data[0].log_level,log_data[0].log_message)
-    return JsonResponse({'data':pk})
+            log_data = Reports_logs.objects.get(id=pk)
+
+        response = {
+            'timestamp':log_data.timestamp,
+            'log_level':log_data.log_level,
+            'method_name':log_data.method_name, 
+            'log_message':log_data.log_message
+        }
+    return JsonResponse({'data':response})

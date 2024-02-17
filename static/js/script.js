@@ -7,6 +7,16 @@ flatpickr("#datetimepicker",
       }
         );
 
+function toUserFriendlyDateTime(data){
+    var date = new Date(data);
+    return date.toLocaleString('en-US', {
+        year: 'numeric', month: 'short', day: 'numeric',
+        hour: '2-digit', minute: '2-digit', second: '2-digit',
+        hour12: true
+    });
+}
+
+
 
 function toUserFriendlyTimeStamp(data, type, row){
     if (type === 'display' || type === 'filter') {
@@ -33,7 +43,7 @@ function toUserFriendlyTimeStamp(data, type, row){
   function addViewLink(data, type, row){
     if (type === 'display') {
         // return `<a class="view" href="#">View</a>`;
-        return `<a class="view" href="${data[0]}" id="${data[0]}" log_type="${data[1]}" is_error_table_data="${data[2]}">View</a>`; // Assuming you want to always display the link for viewing details.
+        return `<a class="view" href="${data[0]}" id="${data[0]}" log_type="${data[1]}" is_error_table_data="${data[2]} " class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" >View</a>`; 
     }
     return ''; // Return an empty string or the original data for non-display types, depending on your needs.
 }
@@ -46,6 +56,13 @@ function toUserFriendlyTimeStamp(data, type, row){
 //     })
 // })
 
+function formattedJsonData(data){
+    var formattedJson = JSON.stringify(data, null, 2);
+    var formattedData = formattedJson.replace(/\\n/g, "<br>");
+    return formattedData
+}
+
+
 $(document).ready(function() {
     // Using the document to delegate the click event to dynamically added `a.view` elements
     $(document).on('click', 'a.view', function(e) {
@@ -57,7 +74,42 @@ $(document).ready(function() {
         var is_error_table_data = $(this).attr('is_error_table_data')
         console.log(id ,log_type, is_error_table_data)
         $.ajax({
-            url:`particular_id_data/${id}/${log_type}/${is_error_table_data}`
+            url:`particular_id_data/${id}/${log_type}/${is_error_table_data}`,
+            dataType:'json',
+            success:function(data){
+                var response = data.data
+                var timestamp = toUserFriendlyDateTime(response.timestamp)
+                var log_type = response.log_type
+                if (log_type === undefined){
+                    console.log("Normal Log")
+                    $('#timestampValue').text(timestamp);
+                    $('#logLevelValue').text(response.log_level);
+                    $(`#methodNameValue`).text(response.method_name);
+                    // var formattedJson = JSON.stringify(response.log_message, null, 2)
+                    // var formattedData = formattedJson.replace(/\\n/g, "<br>")
+                    formattedData = formattedJsonData(response.log_message)
+                    $(`#logmessageValue`).html(formattedData);
+
+                }
+                else{
+                    console.log("Error Log", log_type)
+                    $('#timestampValue').text(timestamp);
+                    $('#logLevelValue').text(response.log_level);
+                    $(`#methodNameValue`).text(response.method_name);
+                    // var formattedJson = JSON.stringify(response.log_message, null, 2)
+                    // var formattedData = formattedJson.replace(/\\n/g, "<br>")
+                    formattedData = formattedJsonData(response.log_message)
+                    $(`#logmessageValue`).html(formattedData);
+
+                }
+                // $('#timestampValue').text(timestamp);
+                // $('#logLevelValue').text(response.log_level);
+                // $(`#methodNameValue`).text(response.method_name);
+                // var formattedJson = JSON.stringify(response.log_message, null, 2)
+                // var formattedData = formattedJson.replace(/\\n/g, "<br>")
+                // $(`#logmessageValue`).html(formattedData);
+                
+            }
         })
 
         // Your code here to handle the click event
@@ -341,3 +393,11 @@ document.getElementById('errors_logs_dropdown').onclick = function (){
     })
     })
 }
+
+
+$(function(){
+    $("button#sendComment").click(function(){
+        var comment = $('developerComment').val()
+        console.log("Form Data Submitted", comment)
+    })
+})
