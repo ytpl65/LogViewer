@@ -43,7 +43,7 @@ def get_youtility_logs(request):
     paginator = Paginator(log_entries,length)
     page_number = (start // length) +1
     page_obj = paginator.get_page(page_number)
-
+    is_error_table_data = False
     data = []
     for obj in page_obj:
         data.append({
@@ -51,7 +51,7 @@ def get_youtility_logs(request):
             "log_level":obj.log_level,
             "method_name":obj.method_name,
             "log_message":obj.log_message,
-            "view": None
+            "view": [obj.id,obj.log_file_type_name, is_error_table_data]
         })
     response = {
         'draw':draw,
@@ -96,7 +96,7 @@ def get_mobileservices_logs(request):
     paginator = Paginator(log_entries,length)
     page_number = (start // length) +1
     page_obj = paginator.get_page(page_number)
-
+    is_error_table_data = False
     data = []
     for obj in page_obj:
         data.append({
@@ -104,7 +104,7 @@ def get_mobileservices_logs(request):
             "log_level":obj.log_level,
             "method_name":obj.method_name,
             "log_message":obj.log_message,
-            "view": None
+            "view": [obj.id,obj.log_file_type_name,is_error_table_data]
         })
     response = {
         'draw':draw,
@@ -151,7 +151,7 @@ def get_reports_logs(request):
     page_number = (start // length ) + 1
     page_obj = pagintor.get_page(page_number)
 
-
+    is_error_table_data = False
     data = []
     for obj in page_obj:
         data.append({
@@ -159,7 +159,7 @@ def get_reports_logs(request):
             "log_level":obj.log_level,
             "method_name":obj.method_name,
             "log_message":obj.log_message,
-            "view": None
+            "view": [obj.id,obj.log_file_type_name, is_error_table_data]
         })
     response = {
         'draw':draw,
@@ -181,7 +181,7 @@ def get_error_logs(request):
     order_by_field = f'-{field_name}' if direction == 'desc' else field_name
 
     filter = {} 
-    for i in range(4):
+    for i in range(7):
         column_search_value = request.GET.get(f'columns[{i}][search][value]',None)
         if column_search_value:
             if i==0:
@@ -201,15 +201,14 @@ def get_error_logs(request):
                 filter['exceptionName__icontains'] = column_search_value
             elif i==6:
                 filter['log_file_type_name__icontains'] = column_search_value
-
     if filter:
         log_entries = Error_logs.objects.filter(**filter)
     else:
         log_entries = Error_logs.objects.all().order_by(order_by_field)
-
     paginator = Paginator(log_entries,length)
     page_number = (start//length)+1
     page_obj = paginator.get_page(page_number)
+    is_error_table_data = True
     data = []
     for obj in page_obj:
         data.append({
@@ -220,7 +219,7 @@ def get_error_logs(request):
             "traceback":obj.traceback,
             "exceptionName":obj.exceptionName,
             "log_file_type_name":obj.log_file_type_name,
-            "view": None
+            "view": [obj.id,obj.log_file_type_name,is_error_table_data]
         })
     response = {
         'draw':draw,
@@ -229,3 +228,22 @@ def get_error_logs(request):
         'data':data
     }
     return JsonResponse(response)
+
+
+def get_particular_data(request, pk,log_type, is_error_table):
+    print(type(is_error_table),is_error_table)
+    if is_error_table == 'true':
+        print("Error log", pk)
+        log_data = Error_logs.objects.filter(id=pk,log_file_type_name=log_type)
+    else:
+        if log_type=='youtility4':
+            print("youtility log",pk)
+            log_data = Youtility_logs.objects.filter(id=pk)
+        elif log_type == 'mobileservice':
+            print("Mobile log",pk)
+            log_data = Mobileservices_logs.objects.filter(id=pk)
+        else:
+            print("Report log",pk)
+            log_data = Reports_logs.objects.filter(id=pk)
+    print("Log Data",log_data[0].timestamp, log_data[0].log_level,log_data[0].log_message)
+    return JsonResponse({'data':pk})
