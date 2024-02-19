@@ -11,174 +11,200 @@
 
 </head>
 <body>
-    <!-- Navbar -->
 
-    <nav class="navbar navbar-expand-lg navbar-dark bg-success ">
-        <div class="container">
-            <a class="navbar-brand" href="#">Log Viewer</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ml-auto">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          Log Files
-                        </a>
-                        <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                          <li><a class="dropdown-item" id="youtility_logs_dropdown" >Youtility Logs</a></li>
-                          <li><a class="dropdown-item" id="mobileserives_logs_dropdown" >Mobileservice Logs</a></li>
-                          <li><a class="dropdown-item" id="reports_logs_dropdown" >Reports Logs</a></li>
-                          <li><a class="dropdown-item" id="errors_logs_dropdown">Error Logs</a></li>
-                        </ul>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>  
+    <div class="container-fluid">
+      <div class="row">
+          <nav class="sidebar navbar-dark">
+              <!-- Sidebar content here -->
+              <a class="navbar-brand" href="#" id="dashboard-page">Log Viewer</a>
+              <a href="#" id="youtility_logs_dropdown">Youtility Logs</a>
+              <a href="#" id="mobileserives_logs_dropdown">Mobileservice Logs</a>
+              <a href="#" id="reports_logs_dropdown">Reports Logs</a>
+              <a href="#" id="errors_logs_dropdown">Error Logs</a>
+          </nav>
+  
+          <div class="col main-content">
+              <!-- Main content here -->
+              <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+          
+                      <table class="modal-table">
+                        <tr>
+                          <td id="timestamp"><strong>TimeStamp: </strong></td>
+                          <td><span id="timestampValue" ></span></td>
+                        </tr>
+                        <tr>
+                          <td id="log_level"><strong >Log Level:</td>
+                          <td><span id="logLevelValue"></span></td>
+                        </tr>
+                        <tr>
+                          <td id="method_name"><strong >Method Name: </strong></td>
+                          <td><span id="methodNameValue"></span></td>
+                        </tr>
+                        <tr>
+                          <td id="log_message"><strong >Log Message: </strong></td>
+                          <td><span id="logmessageValue"></span></td>
+                        </tr>
+                        <tr>
+                          <td id="traceback"><strong>Traceback: </strong></td>
+                          <td><span id="logmessageValue"></span></td>
+                        </tr>
+                        <tr>
+                          <td id="exceptionname"><strong >Exception Name: </strong></td>
+                          <td><span id="logmessageValue"></span></td>
+                        </tr>
+                        <tr>
+                          <td><label for="developerComment"><strong>Comment</strong></label></td>
+                          <td><textarea name="developerComment" id="developerComment" cols="30" rows="1"></textarea></td>
+                        </tr>
+                      </table>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                      <button type="button" id="sendComment" class="btn btn-primary ">Save changes</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div id="dashboard">
+                <div class="dashboard-header"><h1>Log Viewer Application</h1></div>
+                <div class="dashboard-top">
+                  <div class="dashboard-content">
 
-    {% block content %}
-    
-    {% endblock content %}
+                    <div class="youtility-logs-portlet">
+                      <div class="portlet-name center-item">
+                        <div class="portlet-name-header center-item">
+                          <span>Youtility Logs</span>
+                        </div>
+                      </div>
+                      <div class="critical-portlet center-item display-flex">
+                        <div class="direction-flex"><span>Critical</span></div>
+                        <div class="direction-flex"><span>10</span></div>
+                      </div>
+                      <div class="error-portlet center-item display-flex">
+                        <div class="direction-flex"><span>Error</span></div>
+                        <div class="direction-flex"><span>15</span></div>
+                      </div>
+                      <div class="warning-portlet center-item display-flex">
+                        <div class="direction-flex"><span>Warning</span></div>
+                        <div class="direction-flex"><span>30</span></div>
+                      </div>
+                    </div>
+                    <div class="mobileservices-logs-portlet"></div>
+                    <div class="reports-logs-portlet"></div>
+                  </div>  
+                  <div class="dashboard-graph">
 
-    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-      <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                  </div>
+                </div>
+                
+              </div>
+          
+              <div id="youtility_logs" class="custom-width">
+                <div><h1>Youtility Logs</h1></div>
+                    <table id="youtility_logs_table">
+                      <thead>
+                        <tr>
+                          <!-- <th><input type="text" placeholder="Search Timestamp Mon Date,Year" class="form-control" /></th> -->
+                          <th><input type="text" id="datetimepicker" placeholder="Search Timestamp" class="form-control"/></th>
+                          <th><input type="text" placeholder="Search Log Level" class="form-control"/></th>
+                          <th><input type="text" placeholder="Search Method Name" class="form-control"/></th>
+                          <th><input type="text" placeholder="Search Log Message" class="form-control"/></th>
+                          <th></th>
+                        </tr>
+                        <tr>
+                          <th>TimeStamp</th>
+                          <th>Log Level</th>
+                          <th> Method Name</th>
+                          <th>Log Message</th>
+                          <th>View</th>
+                        </tr>
+                      </thead>
+                    </table>
+              </div>
+              <div id="mobileserives_logs" class="custom-width">
+                <div><h1>Mobileservices Logs</h1></div>
+                  <table id = "mobileservice_logs_table">
+                    <thead>
+                      <tr> 
+                        <th><input type="text" id="datetimepicker" placeholder="Search Timestamp" class="form-control"/></th>
+                        <th><input type="text" placeholder="Search Log Level" class="form-control"/></th>
+                        <th><input type="text" placeholder="Search Method Name" class="form-control"/></th>
+                        <th><input type="text" placeholder="Search Log Message" class="form-control"/></th>
+                        <th></th>
+                      </tr>
+                      
+                      <tr>
+                        <th>TimeStamp</th>
+                        <th>Log Level</th>
+                        <th> Method Name</th>
+                        <th>Log Message</th>
+                        <th>View</th>
+                      </tr>
+                    </thead>
+                  </table>
+              </div>
+              <div id="reports_logs" class="custom-width">
+                <div><h1>Reports Logs</h1></div>
+                <table id="reports_logs_table">
+                  <thead>
+                    <tr>
+                      <th><input type="text" id="datetimepicker" placeholder="Search Timestamp" class="form-control"/></th>
+                      <th><input type="text" placeholder="Search Log Level" class="form-control"/></th>
+                      <th><input type="text" placeholder="Search Method Name" class="form-control"/></th>
+                      <th><input type="text" placeholder="Search Log Message" class="form-control"/></th>
+                      <th></th>
+                    </tr>
+                    <tr>
+                      <th>TimeStamp</th>
+                      <th>Log Level</th>
+                      <th> Method Name</th>
+                      <th>Log Message</th>
+                      <th>View</th>
+                    </tr>
+                  </thead>
+                </table>
+              </div>
+          
+              <div id="error_logs" class="custom-width">
+                <div><h1>Error Logs</h1></div>
+                <table id = "error_logs_table">
+                  <thead>
+                    <tr>
+                      <th><input type="text" id="datetimepicker" placeholder="Search Timestamp" class="form-control"/></th>
+                      <th><input type="text" placeholder="Search Log Level" class="form-control"/></th>
+                      <th><input type="text" placeholder="Search Method Name" class="form-control"/></th>
+                      <th><input type="text" placeholder="Search Log Message" class="form-control"/></th>
+                      <th><input type="text" placeholder="Search Traceback" class="form-control"/></th>
+                      <th><input type="text" placeholder="Search Exception Name" class="form-control"/></th>
+                      <th><input type="text" placeholder="Search Log Type" class="form-control"/></th>
+                      <th></th>
+                    </tr>
+                    <tr>
+                      <th>TimeStamp</th>
+                      <th>Log Level</th>
+                      <th> Method Name</th>
+                      <th>Log Message</th>
+                      <th>Traceback</th>
+                      <th>Exception Name</th>
+                      <th>Log Type</th>
+                      <th>View</th>
+                    </tr>
+                  </thead>
+                </table>
+              </div>
           </div>
-          <div class="modal-body">
-
-            <table class="modal-table">
-              <tr>
-                <td id="timestamp"><strong>TimeStamp: </strong></td>
-                <td><span id="timestampValue" ></span></td>
-              </tr>
-              <tr>
-                <td id="log_level"><strong >Log Level:</td>
-                <td><span id="logLevelValue"></span></td>
-              </tr>
-              <tr>
-                <td id="method_name"><strong >Method Name: </strong></td>
-                <td><span id="methodNameValue"></span></td>
-              </tr>
-              <tr>
-                <td id="log_message"><strong >Log Message: </strong></td>
-                <td><span id="logmessageValue"></span></td>
-              </tr>
-              <tr>
-                <td id="traceback"><strong>Traceback: </strong></td>
-                <td><span id="logmessageValue"></span></td>
-              </tr>
-              <tr>
-                <td id="exceptionname"><strong >Exception Name: </strong></td>
-                <td><span id="logmessageValue"></span></td>
-              </tr>
-              <tr>
-                <td><label for="developerComment"><strong>Comment</strong></label></td>
-                <td><textarea name="developerComment" id="developerComment" cols="30" rows="1"></textarea></td>
-              </tr>
-            </table>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            <button type="button" id="sendComment" class="btn btn-primary ">Save changes</button>
-          </div>
-        </div>
       </div>
-    </div>
+  </div>
+    
 
-
-    <div id="youtility_logs" class="custom-width">
-          <table id="youtility_logs_table">
-            <thead>
-              <tr>
-                <!-- <th><input type="text" placeholder="Search Timestamp Mon Date,Year" class="form-control" /></th> -->
-                <th><input type="text" id="datetimepicker" placeholder="Search Timestamp" class="form-control"/></th>
-                <th><input type="text" placeholder="Search Log Level" class="form-control"/></th>
-                <th><input type="text" placeholder="Search Method Name" class="form-control"/></th>
-                <th><input type="text" placeholder="Search Log Message" class="form-control"/></th>
-                <th></th>
-              </tr>
-              <tr>
-                <th>TimeStamp</th>
-                <th>Log Level</th>
-                <th> Method Name</th>
-                <th>Log Message</th>
-                <th>View</th>
-              </tr>
-            </thead>
-          </table>
-    </div>
-    <div id="mobileserives_logs" class="custom-width">
-        <table id = "mobileservice_logs_table">
-          <thead>
-            <tr> 
-              <th><input type="text" id="datetimepicker" placeholder="Search Timestamp" class="form-control"/></th>
-              <th><input type="text" placeholder="Search Log Level" class="form-control"/></th>
-              <th><input type="text" placeholder="Search Method Name" class="form-control"/></th>
-              <th><input type="text" placeholder="Search Log Message" class="form-control"/></th>
-              <th></th>
-            </tr>
-            
-            <tr>
-              <th>TimeStamp</th>
-              <th>Log Level</th>
-              <th> Method Name</th>
-              <th>Log Message</th>
-              <th>View</th>
-            </tr>
-          </thead>
-        </table>
-    </div>
-    <div id="reports_logs" class="custom-width">
-      <table id="reports_logs_table">
-        <thead>
-          <tr>
-            <th><input type="text" id="datetimepicker" placeholder="Search Timestamp" class="form-control"/></th>
-            <th><input type="text" placeholder="Search Log Level" class="form-control"/></th>
-            <th><input type="text" placeholder="Search Method Name" class="form-control"/></th>
-            <th><input type="text" placeholder="Search Log Message" class="form-control"/></th>
-            <th></th>
-          </tr>
-          <tr>
-            <th>TimeStamp</th>
-            <th>Log Level</th>
-            <th> Method Name</th>
-            <th>Log Message</th>
-            <th>View</th>
-          </tr>
-        </thead>
-      </table>
-    </div>
-
-    <div id="error_logs" class="custom-width">
-      <table id = "error_logs_table">
-        <thead>
-          <tr>
-            <th><input type="text" id="datetimepicker" placeholder="Search Timestamp" class="form-control"/></th>
-            <th><input type="text" placeholder="Search Log Level" class="form-control"/></th>
-            <th><input type="text" placeholder="Search Method Name" class="form-control"/></th>
-            <th><input type="text" placeholder="Search Log Message" class="form-control"/></th>
-            <th><input type="text" placeholder="Search Traceback" class="form-control"/></th>
-            <th><input type="text" placeholder="Search Exception Name" class="form-control"/></th>
-            <th><input type="text" placeholder="Search Log Type" class="form-control"/></th>
-            <th></th>
-          </tr>
-          <tr>
-            <th>TimeStamp</th>
-            <th>Log Level</th>
-            <th> Method Name</th>
-            <th>Log Message</th>
-            <th>Traceback</th>
-            <th>Exception Name</th>
-            <th>Log Type</th>
-            <th>View</th>
-          </tr>
-        </thead>
-      </table>
-    </div>
+    
 
     <!-- Include Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>

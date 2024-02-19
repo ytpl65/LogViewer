@@ -62,3 +62,166 @@ label, input{
     white-space: pre-wrap;
     overflow-x: auto;
 }
+
+
+.sidebar {
+    min-height: 100vh; /* Full height */
+    width: 200px; /* Set the width of the sidebar */
+    position: fixed; /* Fixed Sidebar (stay in place on scroll) */
+    z-index: 1; /* Stay on top */
+    top: 0; /* Stay at the top */
+    left: 0;
+    background-color: #01569a; /* Sidebar background color */
+    overflow-x: hidden; /* Disable horizontal scroll */
+    padding-top: 20px;
+}
+
+/* Sidebar links */
+.sidebar a {
+    padding: 10px 15px;
+    text-decoration: none;
+    font-size: 18px;
+    color: white;
+    display: block;
+}
+
+.sidebar a:hover {
+    color: #f1f1f1;
+}
+
+/* Main content */
+.main-content {
+    /* margin-left: 250px; */
+    margin-left: 190px;
+}
+
+.dashboard-header{
+    width: 100%;
+    text-align: center;
+    background-color: #01569a;
+    padding: 5px;
+    margin:0px 0px 5px 0px;
+    color: white;
+}
+
+
+#dashboard-top{
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    flex-direction: row;
+}
+
+
+.dashboard-content{
+    display: flex;
+    height: 350px;
+    width: 100%;
+    justify-content: space-evenly;
+    flex-direction: row;
+    /* background-color: lightblue; */
+    border: 1px solid black;
+    gap: 10px;
+
+}
+
+
+.youtility-logs-portlet{
+    flex:1;
+    height: inherit;
+    border: 1px solid black;
+}
+
+.mobileservices-logs-portlet{
+    flex:1;
+    height: inherit;
+    background-color: lightgreen;
+    border: 1px solid black;
+
+}
+
+.reports-logs-portlet{
+    flex:1;
+    height: inherit;
+    background-color: yellow;
+    border: 1px solid black;
+
+}
+
+
+.dashboard-graph{
+    margin-top: 10px;
+    background-color: lightblue;
+    flex: 1;
+    height: 490px;
+    width: 1100px;
+    border: 1px solid black;
+}
+
+.youtility-logs-portlet{
+    display: flex;
+    flex-direction: column;
+}
+
+.youtility-logs-portlet > div{
+    border-radius: 10px;
+    margin: 3px;
+    text-align: center;
+    font-size: 1.4rem;
+    flex: 1;
+    color: #01569a;
+    font-weight: 500;
+    background-color: #f5f8fa;
+    border: 3px solid #ffffff;
+}
+
+
+
+.portlet-name{
+    color: white;
+}
+
+.portlet-name-header{
+    height: 80%;
+    width: 90%;
+    border-radius: 10px;
+    font-size: 1.5em;
+    font-weight: 500;
+    background-color:#01569a ;
+    color: white;
+}
+
+.center-item{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.critical-portlet{
+    /* display: flex; */
+    justify-content: space-between;
+    background-color: orange;
+    text-align: center;
+}
+
+.error-portlet{
+    background-color: white;
+}
+
+.warning-portlet{
+    background-color: green;
+}
+
+/* .critical-portlet > div{
+    flex: row;
+} */
+
+
+.display-flex{
+    display: flex;
+    justify-content: space-around;
+}
+
+.direction-flex{
+    flex: row;
+}

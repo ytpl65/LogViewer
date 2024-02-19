@@ -112,6 +112,22 @@ $(document).ready(function() {
             }
         })
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+
         // Your code here to handle the click event
     });
 });
@@ -126,6 +142,8 @@ document.getElementById('youtility_logs_dropdown').onclick = function () {
   document.getElementById('mobileserives_logs').style.display='none';
   document.getElementById('reports_logs').style.display='none';
   document.getElementById('error_logs').style.display='none';
+  document.getElementById('dashboard').style.display = 'none'
+    
   console.log("Server Side Code")
     var table = $('#youtility_logs_table').DataTable({
            retrieve: true,
@@ -191,6 +209,8 @@ document.getElementById('mobileserives_logs_dropdown').onclick = function () {
   document.getElementById('mobileserives_logs').style.display='block';
   document.getElementById('reports_logs').style.display='none';
   document.getElementById('error_logs').style.display='none';
+  document.getElementById('dashboard').style.display = 'none'
+    
     $(function() {
       var table = $('#mobileservice_logs_table').DataTable({
                 retrieve: true,
@@ -257,6 +277,8 @@ document.getElementById('reports_logs_dropdown').onclick = function () {
     document.getElementById('youtility_logs').style.display='none';
     document.getElementById('mobileserives_logs').style.display='none';
     document.getElementById('error_logs').style.display='none';
+    document.getElementById('dashboard').style.display = 'none'
+    
     console.log("Outside Ajax Code")
     $(function () {
         console.log("Inside")
@@ -323,6 +345,8 @@ document.getElementById('errors_logs_dropdown').onclick = function (){
     document.getElementById('youtility_logs').style.display='none';
     document.getElementById('mobileserives_logs').style.display='none';
     document.getElementById('error_logs').style.display='block';
+    document.getElementById('dashboard').style.display = 'none'
+
     console.log("Starting Datablae Code")
     $(function (){
     var table = $('#error_logs_table').DataTable(
@@ -401,3 +425,31 @@ $(function(){
         console.log("Form Data Submitted", comment)
     })
 })
+
+
+
+//Dashboard Code 
+
+document.getElementById('dashboard-page').onclick = function(){
+    console.log("Dashboard");
+    document.getElementById('dashboard').style.display = 'block'
+    document.getElementById('reports_logs').style.display='none';
+    document.getElementById('youtility_logs').style.display='none';
+    document.getElementById('mobileserives_logs').style.display='none';
+    document.getElementById('error_logs').style.display='none';    
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
