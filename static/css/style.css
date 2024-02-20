@@ -115,55 +115,37 @@ label, input{
 
 .dashboard-content{
     display: flex;
-    height: 350px;
+    height: 300px;
     width: 100%;
     justify-content: space-evenly;
     flex-direction: row;
-    /* background-color: lightblue; */
-    border: 1px solid black;
     gap: 10px;
 
 }
 
 
-.youtility-logs-portlet{
+.logs-portlet{
     flex:1;
     height: inherit;
-    border: 1px solid black;
+    box-shadow: 0px 10px 10px 0 rgba(0, 0, 0, 0.2);
+    border-radius: 18px;
 }
-
-.mobileservices-logs-portlet{
-    flex:1;
-    height: inherit;
-    background-color: lightgreen;
-    border: 1px solid black;
-
-}
-
-.reports-logs-portlet{
-    flex:1;
-    height: inherit;
-    background-color: yellow;
-    border: 1px solid black;
-
-}
-
 
 .dashboard-graph{
     margin-top: 10px;
-    background-color: lightblue;
+    background-color: white;
     flex: 1;
     height: 490px;
     width: 1100px;
-    border: 1px solid black;
+    /* border: 1px solid black; */
 }
 
-.youtility-logs-portlet{
+.logs-portlet{
     display: flex;
     flex-direction: column;
 }
 
-.youtility-logs-portlet > div{
+.logs-portlet > div{
     border-radius: 10px;
     margin: 3px;
     text-align: center;
@@ -173,12 +155,14 @@ label, input{
     font-weight: 500;
     background-color: #f5f8fa;
     border: 3px solid #ffffff;
+    box-shadow: 0 5px 5px 0px rgba(0,0,0,0.2);
 }
 
 
 
 .portlet-name{
     color: white;
+    cursor: pointer;
 }
 
 .portlet-name-header{
@@ -197,31 +181,36 @@ label, input{
     align-items: center;
 }
 
-.critical-portlet{
-    /* display: flex; */
-    justify-content: space-between;
-    background-color: orange;
-    text-align: center;
-}
-
-.error-portlet{
-    background-color: white;
-}
-
-.warning-portlet{
-    background-color: green;
-}
-
-/* .critical-portlet > div{
-    flex: row;
-} */
-
 
 .display-flex{
     display: flex;
-    justify-content: space-around;
+    justify-content: space-evenly;
 }
 
 .direction-flex{
     flex: row;
 }
+
+
+.material-symbols-outlined{
+    font-size: 40px !important;
+    
+}
+
+
+.logo-warning{
+    color: rgb(241, 207, 13) !important;
+}
+
+.logo-error{
+    color:orange!important;
+}
+
+.logo-critical{
+    color:red!important;
+}
+
+#dropdownMenuButton1{
+    margin: 10px;
+}
+

@@ -102,39 +102,15 @@ $(document).ready(function() {
                     $(`#logmessageValue`).html(formattedData);
 
                 }
-                // $('#timestampValue').text(timestamp);
-                // $('#logLevelValue').text(response.log_level);
-                // $(`#methodNameValue`).text(response.method_name);
-                // var formattedJson = JSON.stringify(response.log_message, null, 2)
-                // var formattedData = formattedJson.replace(/\\n/g, "<br>")
-                // $(`#logmessageValue`).html(formattedData);
                 
             }
         })
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
-
-        // Your code here to handle the click event
     });
 });
 
 
 
-
+get_dashboard_data()
 
 document.getElementById('youtility_logs_dropdown').onclick = function () {
   console.log('Youtility Logs Show')
@@ -427,12 +403,50 @@ $(function(){
 })
 
 
+function get_dashboard_data(){
+    $(function(){
+        $.ajax({
+            url:`dashboard_data/`,
+            dataType:`json`,
+            success:function(data){
+                render_dasboard_data(data)
+            }
+        })
+    })
+}
 
-//Dashboard Code 
+
+
+function render_dasboard_data(data){
+    console.log(data)
+    var youtility_critical_value = data['youtility_critical']
+    var youtility_error_value = data['youtility_error']
+    var youtility_warning_value = data['youtility_warning']
+    var mobileservices_critical_value = data['mobileservices_critical']
+    var mobileservices_error_value = data['mobileservices_error']
+    var mobileservices_warning_value = data['mobileservices_warning']
+    var reports_critical_value = data['reports_critical']
+    var reports_error_value = data['reports_error']
+    var reports_warning_value =  data['reports_warning']
+    console.log(youtility_critical_value,youtility_error_value,youtility_warning_value)
+    $('#youtility-critical-value').text(youtility_critical_value);
+    $('#youtility-error-value').text(youtility_error_value);
+    $('#youtility-warning-value').text(youtility_warning_value);
+    $('#mobileservices-critical-value').text(mobileservices_critical_value);
+    $('#mobileservices-error-value').text(mobileservices_error_value);
+    $('#mobileservices-warning-value').text(mobileservices_warning_value);
+    $('#reports-critical-value').text(reports_critical_value);
+    $('#reports-error-value').text(reports_error_value);
+    $('#reports-warning-value').text(reports_warning_value);
+    
+    
+}
+
 
 document.getElementById('dashboard-page').onclick = function(){
     console.log("Dashboard");
     document.getElementById('dashboard').style.display = 'block'
+    
     document.getElementById('reports_logs').style.display='none';
     document.getElementById('youtility_logs').style.display='none';
     document.getElementById('mobileserives_logs').style.display='none';
@@ -440,6 +454,74 @@ document.getElementById('dashboard-page').onclick = function(){
 
 }
 
+var myChart = null;
+var youtility_graph_data = [[12,34,26,28,12,29,14],[10,32,24,10,19,22,18],[10,32,16,12,26,19,11]]
+myChart = render_graph(youtility_graph_data)
+
+
+document.getElementById('youtility-graph').onclick = function(){
+    console.log('youtility-log')
+    var youtility_graph_data = [[12,34,26,28,12,29,14],[10,32,24,10,19,22,18],[10,32,16,12,26,19,11]]
+    myChart = render_graph(youtility_graph_data)
+}
+
+document.getElementById('mobileservice-graph').onclick = function(){
+    console.log('mobileservice-log');
+    var mobileservices_graph_data = [[10,32,24,10,19,22,18],[12,34,26,28,12,29,14],[10,32,24,0,19,22,18]]
+    myChart = render_graph(mobileservices_graph_data)
+}
+
+document.getElementById('reports-graph').onclick = function(){
+    console.log('reports-log');
+    var reports_graph_data = [[10,32,16,12,26,19,11,13,15],[12,34,26,28,12,29,14],[10,32,24,10,19,22,18]]
+    myChart = render_graph(reports_graph_data)
+}
+
+
+function render_graph(data){
+    var ctx = document.getElementById('myChart').getContext('2d');
+    if(myChart){
+        myChart.destroy()
+    }
+    console.log(data)
+    var chartData = {
+        
+      labels: ['Time1', 'Time2', 'Time3','Time4', 'Time5', 'Time6','Time7','Time8','Time9','Time10'], // Populate with your time data
+      datasets: [
+          {
+              label: 'Youtility - Critical',
+              data: data[0], // Your count data here
+              borderColor: 'red',
+              hidden: false, // Initially hide this dataset
+          },
+          {
+              label: 'Youtility - Error',
+              data: data[1],
+              borderColor: 'orange',
+              hidden: false, // Initially hide this dataset
+          },
+          {
+            label: 'Youtility - Warning',
+            data: data[2],
+            borderColor: 'yellow',
+            hidden: false, // Initially hide this dataset
+        },
+         
+      ]
+    };
+    myChart = new Chart(ctx, {
+      type: 'line',
+      data: chartData,
+      options: {
+          scales: {
+              y: {
+                  beginAtZero: true
+              }
+          }
+      }
+  });
+  return myChart
+  }
 
 
 

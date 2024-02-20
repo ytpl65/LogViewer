@@ -1,8 +1,10 @@
 from django.shortcuts import render
 from django.http import JsonResponse,HttpResponse
 from .models import Youtility_logs,Mobileservices_logs,Reports_logs,Error_logs
-from django.db.models import Q
-import json 
+from django.db.models import Q,Count,Case,When,Value,IntegerField
+from django.db.models.functions import TruncDate
+
+
 # Create your views here.
 from .utils import get_start_and_end_date
 from django.core.paginator import Paginator
@@ -263,3 +265,87 @@ def get_particular_data(request, pk,log_type, is_error_table):
             'log_message':log_data.log_message
         }
     return JsonResponse({'data':response})
+
+
+def get_dashboard_data(request):
+    youtility_critical_count = len(Error_logs.objects.filter(log_level='CRITICAL',log_file_type_name='youtility4'))
+    youtility_error_count = len(Error_logs.objects.filter(log_level='ERROR',log_file_type_name='youtility4'))
+    youtility_warning_count = len(Youtility_logs.objects.filter(log_level='WARNING'))
+
+    mobileservices_critical_count = len(Error_logs.objects.filter(log_level='CRITICAL',log_file_type_name='mobileservice')) 
+    mobileservices_error_count = len(Error_logs.objects.filter(log_level='ERROR',log_file_type_name='mobileservice'))   
+    mobileservices_warning_count = len(Mobileservices_logs.objects.filter(log_level='WARNING'))   
+    
+    reports_critical_count = len(Error_logs.objects.filter(log_level='CRITICAL',log_file_type_name='reports'))  
+    reports_error_count = len(Error_logs.objects.filter(log_level='ERROR',log_file_type_name='reports'))    
+    reports_warning_count = len(Reports_logs.objects.filter(log_level='WARNING'))    
+    
+    response = {
+        'youtility_critical':youtility_critical_count,
+        'youtility_error':youtility_error_count,
+        'youtility_warning':youtility_warning_count,
+        'mobileservices_critical':mobileservices_critical_count,
+        'mobileservices_error': mobileservices_error_count,
+        'mobileservices_warning':mobileservices_warning_count,
+        'reports_critical':reports_critical_count,
+        'reports_error':reports_error_count,
+        'reports_warning':reports_warning_count
+    }
+
+
+    log_counts_by_date = (
+        Error_logs.objects
+        .annotate(log_date=TruncDate('timestamp'))
+        .values('log_date')
+        .annotate(
+            youtility_critical=Count(Case(When(log_level='CRITICAL', log_file_type_name='youtility4', then=Value(1)), output_field=IntegerField())),
+            youtility_error=Count(Case(When(log_level='ERROR', log_file_type_name='youtility4', then=Value(1)), output_field=IntegerField())),
+            mobileservice_critical=Count(Case(When(log_level='CRITICAL', log_file_type_name='mobileservice', then=Value(1)), output_field=IntegerField())),
+            mobileservice_error=Count(Case(When(log_level='ERROR', log_file_type_name='mobileservice', then=Value(1)), output_field=IntegerField())),
+            reports_critical=Count(Case(When(log_level='CRITICAL', log_file_type_name='reports', then=Value(1)), output_field=IntegerField())),
+            reports_error=Count(Case(When(log_level='ERROR', log_file_type_name='reports', then=Value(1)), output_field=IntegerField())),
+        )
+        .order_by('log_date')
+        )
+    for x in log_counts_by_date:
+        print(x)
+    print(len(log_counts_by_date))
+
+    youtility_warning_logs_by_date = (
+    Youtility_logs.objects
+    .filter(log_level='WARNING')
+    .annotate(log_date=TruncDate('timestamp'))
+    .values('log_date')  # Group by this date
+    .annotate(youtility_warning=Count('id'))  # Count occurrences
+    .order_by('log_date')  # Order by the log_date
+    )
+    # for x in youtility_warning_logs_by_date:
+    #     print(x)
+    print(len(youtility_warning_logs_by_date))
+
+    mobileservices_warning_logs_by_date = (
+    Mobileservices_logs.objects
+    .filter(log_level='WARNING')
+    .annotate(log_date=TruncDate('timestamp'))
+    .values('log_date')  # Group by this date
+    .annotate(youtility_warning=Count('id'))  # Count occurrences
+    .order_by('log_date')  # Order by the log_date
+    )
+    # for x in mobileservices_warning_logs_by_date:
+    #     print(x)
+    print(len(mobileservices_warning_logs_by_date))
+
+    reports_warning_logs_by_date = (
+    Reports_logs.objects
+    .filter(log_level='WARNING')
+    .annotate(log_date=TruncDate('timestamp'))
+    .values('log_date')  # Group by this date
+    .annotate(youtility_warning=Count('id'))  # Count occurrences
+    .order_by('log_date')  # Order by the log_date
+    )
+    # for x in reports_warning_logs_by_date:
+    #     print(x)
+    print(len(reports_warning_logs_by_date))
+    return JsonResponse(response)
+    
+    
