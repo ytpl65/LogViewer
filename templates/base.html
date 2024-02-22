@@ -9,19 +9,20 @@
     <link href="https://cdn.datatables.net/v/dt/dt-1.13.10/datatables.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" /></head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
 <body>
-
     <div class="container-fluid">
       <div class="row">
           <nav class="sidebar navbar-dark">
               <!-- Sidebar content here -->
-              <a class="navbar-brand" href="#" id="dashboard-page">Dashboard</a>
-              <a href="#" id="youtility_logs_dropdown">Youtility Logs</a>
-              <a href="#" id="mobileserives_logs_dropdown">Mobileservice Logs</a>
-              <a href="#" id="reports_logs_dropdown">Reports Logs</a>
-              <a href="#" id="errors_logs_dropdown">Error Logs</a>
+              <a class="navbar-brand poppins-light" href="#" id="dashboard-page">Dashboard</a>
+              <a href="#" id="youtility_logs_dropdown" class="poppins-light">Youtility Logs</a>
+              <a href="#" id="mobileserives_logs_dropdown" class="poppins-light">Mobileservice Logs</a>
+              <a href="#" id="reports_logs_dropdown" class="poppins-light">Reports Logs</a>
+              <a href="#" id="errors_logs_dropdown" class="poppins-light">Error Logs</a>
           </nav>
-  
           <div class="col main-content">
               <!-- Main content here -->
               <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -72,13 +73,12 @@
                 </div>
               </div>
               <div id="dashboard">
-                <div class="dashboard-header"><h1>Log Viewer Application</h1></div>
+                <div class="dashboard-header poppins-semibold"><h1>Log Viewer Application</h1></div>
                 <div class="dashboard-top">
-                  <div class="dashboard-content">
-                      
+                  <div class="dashboard-content poppins-light">
                     <div class="logs-portlet">
                       <div class="portlet-name center-item" id = "youtility-graph">
-                        <div class="portlet-name-header center-item">
+                        <div class="portlet-name-header center-item poppins-regular">
                           <span>Youtility Logs</span>
                         </div>
                       </div>
@@ -86,7 +86,7 @@
                         <span class="material-symbols-outlined logo-critical">
                           dangerous
                           </span>
-                        <div class="direction-flex"><span>Critical</span></div>
+                        <div class="direction-flex "><span>Critical</span></div>
                         <div class="direction-flex"><span id="youtility-critical-value"></span></div>
                       </div>
                       <div class="error-portlet center-item display-flex">
@@ -107,7 +107,7 @@
                     </div>
                       <div class="logs-portlet">
                         <div class="portlet-name center-item"  id = "mobileservice-graph">
-                          <div class="portlet-name-header center-item">
+                          <div class="portlet-name-header center-item poppins-regular">
                             <span>Mobileservice Logs</span>
                           </div>
                         </div>
@@ -136,7 +136,7 @@
                       </div>
                       <div class="logs-portlet">
                         <div class="portlet-name center-item" id = "reports-graph">
-                          <div class="portlet-name-header center-item">
+                          <div class="portlet-name-header center-item poppins-regular">
                             <span>Reports Logs</span>
                           </div>
                         </div>
@@ -168,10 +168,13 @@
                     <div class="graph-container">
                       <canvas id="myChart"></canvas>
                     </div>
+                    <div class="chart-container">
+                      <canvas id="myDounghtChart"></canvas>
+                    </div>
+                  </div>
                   </div>
                 </div>
-                
-              </div>
+          </div>
           
               <div id="youtility_logs" class="custom-width">
                 <div><h1>Youtility Logs</h1></div>

@@ -1,3 +1,4 @@
+
 footer {
     background-color: #f8f9fa;
     text-align: center;
@@ -95,6 +96,14 @@ label, input{
     margin-left: 190px;
 }
 
+
+.material-symbols-outlined{
+  position: absolute;
+  margin-left: -370px;
+}
+
+
+
 .dashboard-header{
     width: 100%;
     text-align: center;
@@ -135,8 +144,10 @@ label, input{
     margin-top: 10px;
     background-color: white;
     flex: 1;
-    height: 490px;
-    width: 1100px;
+    justify-content: space-around;
+    /* height: 490px;
+    width: 1100px; */
+    display: flex;
     /* border: 1px solid black; */
 }
 
@@ -152,7 +163,6 @@ label, input{
     font-size: 1.4rem;
     flex: 1;
     color: #01569a;
-    font-weight: 500;
     background-color: #f5f8fa;
     border: 3px solid #ffffff;
     box-shadow: 0 5px 5px 0px rgba(0,0,0,0.2);
@@ -199,7 +209,7 @@ label, input{
 
 
 .logo-warning{
-    color: rgb(241, 207, 13) !important;
+    color: black !important;
 }
 
 .logo-error{
@@ -207,10 +217,131 @@ label, input{
 }
 
 .logo-critical{
-    color:red!important;
+    color:'#FF6B6B '!important;
 }
 
 #dropdownMenuButton1{
     margin: 10px;
+}
+
+.poppins-thin {
+    font-family: "Poppins", sans-serif;
+    font-weight: 100;
+    font-style: normal;
+  }
+  
+  .poppins-thin-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 100;
+    font-style: italic;
+  }
+  
+  .poppins-extralight {
+    font-family: "Poppins", sans-serif;
+    font-weight: 200;
+    font-style: normal;
+  }
+  
+  .poppins-extralight-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 200;
+    font-style: italic;
+  }
+  
+  .poppins-light {
+    font-family: "Poppins", sans-serif;
+    font-weight: 300;
+    font-style: normal;
+  }
+  
+  .poppins-light-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 300;
+    font-style: italic;
+  }
+  
+  .poppins-regular {
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1.5rem;
+  }
+  
+  .poppins-regular-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 400;
+    font-style: italic;
+  }
+  
+  .poppins-medium {
+    font-family: "Poppins", sans-serif;
+    font-weight: 500;
+    font-style: normal;
+  }
+  
+  .poppins-medium-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 500;
+    font-style: italic;
+  }
+  
+  .poppins-semibold {
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-style: normal;
+  }
+  
+  .poppins-semibold-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    font-style: italic;
+  }
+  
+  .poppins-bold {
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    font-style: normal;
+  }
+  
+  .poppins-bold-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 700;
+    font-style: italic;
+  }
+  
+  .poppins-extrabold {
+    font-family: "Poppins", sans-serif;
+    font-weight: 800;
+    font-style: normal;
+  }
+  
+  .poppins-extrabold-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 800;
+    font-style: italic;
+  }
+  
+  .poppins-black {
+    font-family: "Poppins", sans-serif;
+    font-weight: 900;
+    font-style: normal;
+  }
+  
+.poppins-black-italic {
+    font-family: "Poppins", sans-serif;
+    font-weight: 900;
+    font-style: italic;
+  }
+
+.chart-container{
+    background-color: white;
+    height: 500px;
+    margin-top: 30px;
+    width: 480px;
+  }
+
+#myChart{
+  height: 500px;
+  width: 1100px;
 }
 

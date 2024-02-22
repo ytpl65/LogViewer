@@ -1,6 +1,8 @@
 import re 
 import os 
 from .models import Mobileservices_logs,Youtility_logs,Reports_logs,Error_logs
+from django.db.models import Count,Case,When,Value,IntegerField
+from django.db.models.functions import TruncDate
 from django.utils.dateparse import parse_datetime
 from django.utils import timezone
 from datetime import datetime
@@ -160,6 +162,7 @@ def inserting_into_youtility_table(youtility_normal_log_arr):
         timestamp = timezone.make_aware(timestamp, timezone.get_default_timezone())
         log_entry = Youtility_logs(
             timestamp = timestamp,
+            
             log_level = entry['log_levels'],
             method_name = entry['function_name'],
             log_message = entry['log_messages'],
@@ -215,27 +218,277 @@ def get_start_and_end_date(date_str):
 
 
 
+def all_logs_date_critical_error_list(log_counts_by_date):
+    youtility_date_critical_error = []
+    for x in log_counts_by_date:
+        ele = []
+        date = str(x['log_date'])
+        youtility_critical = x['youtility_critical']
+        youtility_error = x['youtility_error']
+        mobileservice_critical = x['mobileservice_critical']
+        mobileservice_error = x['mobileservice_error']
+        reports_critical = x['reports_critical']
+        reports_error = x['reports_error']
+        youtility_date_critical_error.append([date,youtility_critical,youtility_error,mobileservice_critical,mobileservice_error,reports_critical,reports_error])
+    return youtility_date_critical_error
 
 
 
+def youtility_date_warning_list(youtility_warning_logs_by_date):
+    youtility_date_warning = [] 
+    for x in youtility_warning_logs_by_date:
+        date = str(x['log_date'])
+        youtility_warning = x['youtility_warning']
+        youtility_date_warning.append([date,youtility_warning])
+    return youtility_date_warning
+
+
+def mobileservices_date_warning_list(mobileservices_warning_logs_by_date):
+    mobileservice_date_warning = [] 
+    for x in mobileservices_warning_logs_by_date:
+        date = str(x['log_date'])
+        youtility_warning = x['mobileservices_warning']
+        mobileservice_date_warning.append([date,youtility_warning])
+    return mobileservice_date_warning
 
 
 
+def get_critical_error_warning_data(critical_error_warning_log_date_list_str,date_warning,critical_error_date,log_file,index_dictionary):
+
+    indexes = index_dictionary[log_file]
+
+    critical_data = []
+    warning_data = []
+    error_data = []
+
+    for x in critical_error_warning_log_date_list_str:
+        record_present = False
+        for record in critical_error_date:
+            if record[0] == x:
+                record_present = True
+                critical_data.append(record[indexes[0]])
+                error_data.append(record[indexes[1]])
+        if not record_present:
+            critical_data.append(0)
+            error_data.append(0)
+            
+        record_present = False 
+        for record in date_warning:
+            if record[0] == x:
+                record_present = True 
+                warning_data.append(record[1])
+        if not record_present:
+            warning_data.append(0)
+
+    data = []
+    data.append(critical_data)
+    data.append(error_data)
+    data.append(warning_data)
+
+    return critical_error_warning_log_date_list_str,data    
 
 
 
+def get_critical_error_date(log_counts_by_date):
+    critical_error_date = []
+    for record in log_counts_by_date:
+        critical_error_date.append(record['log_date'])
+    critical_error_date.sort()
+    return critical_error_date
+
+def get_youtility_warning_date(youtility_warning_logs_by_date):
+    youtility_warning_date = []
+    for record in youtility_warning_logs_by_date:
+        youtility_warning_date.append(record['log_date'])
+    youtility_warning_date.sort()
+    return youtility_warning_date
+
+
+def get_mobileservices_warning_date(mobileservices_warning_logs_by_date):
+    mobileservices_warning_date = [] 
+    for record in mobileservices_warning_logs_by_date:
+        mobileservices_warning_date.append(record['log_date'])
+    return mobileservices_warning_date
+
+
+def get_critical_error_warning_date_in_list(warning_date,all_logs_critical_error_date):
+    # print(warning_date,len(warning_date))
+    
+    # print('########################')
+    # print(all_logs_critical_error_date,len(all_logs_critical_error_date))
+    critical_error_warning_log_date = warning_date+all_logs_critical_error_date
+    critical_error_warning_log_date = set(critical_error_warning_log_date)
+    critical_error_warning_log_date_list = (list(critical_error_warning_log_date))
+    critical_error_warning_log_date_list.sort()
+    # print('################################3')
+    # print(critical_error_warning_log_date_list,len(critical_error_warning_log_date_list))
+    return critical_error_warning_log_date_list
+
+
+def convert_critical_error_warning_log_date_in_list_to_str(critical_error_warning_log_date_in_list):
+    critical_error_warning_log_date_list_str = []
+    for date in critical_error_warning_log_date_in_list:
+        critical_error_warning_log_date_list_str.append(str(date))
+    return critical_error_warning_log_date_list_str
 
 
 
+def get_all_logs_critical_error_count_with_date():
+    all_logs_critical_error_count_with_date = (
+        Error_logs.objects
+        .annotate(log_date=TruncDate('timestamp'))
+        .values('log_date')
+        .annotate(
+            youtility_critical=Count(Case(When(log_level='CRITICAL', log_file_type_name='youtility4', then=Value(1)), output_field=IntegerField())),
+            youtility_error=Count(Case(When(log_level='ERROR', log_file_type_name='youtility4', then=Value(1)), output_field=IntegerField())),
+            mobileservice_critical=Count(Case(When(log_level='CRITICAL', log_file_type_name='mobileservice', then=Value(1)), output_field=IntegerField())),
+            mobileservice_error=Count(Case(When(log_level='ERROR', log_file_type_name='mobileservice', then=Value(1)), output_field=IntegerField())),
+            reports_critical=Count(Case(When(log_level='CRITICAL', log_file_type_name='reports', then=Value(1)), output_field=IntegerField())),
+            reports_error=Count(Case(When(log_level='ERROR', log_file_type_name='reports', then=Value(1)), output_field=IntegerField())),
+        )
+        .order_by('log_date')
+        )
+    return all_logs_critical_error_count_with_date
+
+
+def get_youtility_warning_logs_count_with_date():
+    youtility_warning_logs_count_with_date = (
+    Youtility_logs.objects
+    .filter(log_level='WARNING')
+    .annotate(log_date=TruncDate('timestamp'))
+    .values('log_date')  # Group by this date
+    .annotate(youtility_warning=Count('id'))  # Count occurrences
+    .order_by('log_date')  # Order by the log_date
+    )
+    return youtility_warning_logs_count_with_date
+
+
+def get_mobileservices_warning_logs_count_with_date():
+    mobileservices_warning_logs_count_with_date = (
+    Mobileservices_logs.objects
+    .filter(log_level='WARNING')
+    .annotate(log_date=TruncDate('timestamp'))
+    .values('log_date')  # Group by this date
+    .annotate(mobileservices_warning=Count('id'))  # Count occurrences
+    .order_by('log_date')  # Order by the log_date
+    )
+    return mobileservices_warning_logs_count_with_date
+
+
+def get_reports_warning_logs_count_with_date():
+    reports_warning_logs_by_date = (
+    Reports_logs.objects
+    .filter(log_level='WARNING')
+    .annotate(log_date=TruncDate('timestamp'))
+    .values('log_date')  # Group by this date
+    .annotate(reports_warning=Count('id'))  # Count occurrences
+    .order_by('log_date')  # Order by the log_date
+    )
+    return reports_warning_logs_by_date 
+
+def convert_queryset_to_list(data):
+    queryset_list = []
+    if len(data)>0:
+        method_name = data[0]['method_name']
+        no_of_times = data[0]['no_of_times_called']
+        queryset_list.append(method_name)
+        queryset_list.append(no_of_times)
+    else:
+        queryset_list.append(0)
+        queryset_list.append(0)
+    return queryset_list
+
+def get_reports_warning_date(reports_warning_logs_by_date):
+    reports_warning_date = []
+    for record in reports_warning_logs_by_date:
+         reports_warning_date.append(record['log_date'])
+    return reports_warning_date
+
+
+def reports_date_warning_list(reports_warning_logs_by_date):
+    reports_date_warning = []
+    for x in reports_warning_logs_by_date:
+        date = str(x['log_date'])
+        reports_warning = x['reports_warning']
+        reports_date_warning.append([date,reports_warning])
+    return reports_date_warning
+
+
+def get_top_methods(log_file_type_name):
+    return (
+        Error_logs.objects
+        .filter(log_file_type_name=log_file_type_name)
+        .values('method_name')
+        .annotate(no_of_times_called=Count('id'))
+        .order_by('-no_of_times_called')[:3]
+    )
+
+def get_critical_top_method(log_file_type_name):
+    queryset = Error_logs.objects \
+    .filter(log_file_type_name= log_file_type_name, log_level='CRITICAL') \
+    .values('method_name') \
+    .annotate(no_of_times_called=Count('method_name')) \
+    .order_by('-no_of_times_called')[:1]
+    return queryset
+
+def get_error_top_method(log_file_type_name):
+    queryset = Error_logs.objects \
+    .filter(log_file_type_name= log_file_type_name, log_level='ERROR') \
+    .values('method_name') \
+    .annotate(no_of_times_called=Count('method_name')) \
+    .order_by('-no_of_times_called')[:1]
+    return queryset
+
+
+def get_youtility_warning_top_method():
+    queryset = Youtility_logs.objects \
+    .filter(log_level='WARNING') \
+    .values('method_name') \
+    .annotate(no_of_times_called=Count('method_name')) \
+    .order_by('-no_of_times_called')[:1]
+    return queryset
+
+def get_mobileservices_warning_top_method():
+    queryset = Mobileservices_logs.objects \
+    .filter(log_level='WARNING') \
+    .values('method_name') \
+    .annotate(no_of_times_called=Count('method_name')) \
+    .order_by('-no_of_times_called')[:1]
+    return queryset
+
+def get_reports_warning_top_method():
+    queryset = Reports_logs.objects \
+    .filter(log_level='WARNING') \
+    .values('method_name') \
+    .annotate(no_of_times_called=Count('method_name')) \
+    .order_by('-no_of_times_called')[:1]
+    return queryset
+
+
+def query_filter(request):
+    filter = {}
+    for i in range(4):
+        column_search_value = request.GET.get(f'columns[{i}][search][value]',None)
+        if column_search_value:
+            if i == 0:
+                start_date, end_date = get_start_and_end_date(column_search_value)
+                filter['timestamp__range'] = (start_date,end_date)
+            elif i == 1:
+                filter['log_level__icontains'] = column_search_value
+            elif i == 2:
+                filter['method_name__icontains'] = column_search_value
+            elif i == 3:
+                filter['log_message__icontains'] = column_search_value
+    return filter
 
 
 
-
-
-# if __name__ == '__main__':
-#     dir_path = '/home/satyam/Downloads/youtility4_logs'
-#     report_log_arr, mobile_log_arr, youtility_log_arr =  get_file_names(dir_path)
-#     final_log_arr =get_respective_log_of_files(reports_log_file_arr=report_log_arr,mobile_services_log_file_arr=mobile_log_arr,youtility_log_file_arr=youtility_log_arr)
-
-
-
+def get_response_data(response):
+    method_name = []
+    no_of_times_called = []
+    for data in response:
+        print(data)
+        print(data[0],data[1])
+        method_name.append(response[data][0])
+        no_of_times_called.append(response[data][1])
+    return method_name,no_of_times_called

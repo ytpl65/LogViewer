@@ -416,6 +416,25 @@ function get_dashboard_data(){
 }
 
 
+function get_chart_data(){
+    $(function(){
+        $.ajax(
+            {
+                url:`get_piechart_data`,
+                dataType:`json`,
+                success:function(data){
+                    console.log(data)
+                    var  method_name_arr = data.method_name 
+                    var no_of_times_called = data.no_of_times_called 
+                    console.log(method_name_arr, no_of_times_called)
+                    render_chart(method_name_arr,no_of_times_called)
+                }
+            }
+        )
+    })
+}
+
+get_chart_data()
 
 function render_dasboard_data(data){
     console.log(data)
@@ -429,17 +448,15 @@ function render_dasboard_data(data){
     var reports_error_value = data['reports_error']
     var reports_warning_value =  data['reports_warning']
     console.log(youtility_critical_value,youtility_error_value,youtility_warning_value)
-    $('#youtility-critical-value').text(youtility_critical_value);
-    $('#youtility-error-value').text(youtility_error_value);
-    $('#youtility-warning-value').text(youtility_warning_value);
-    $('#mobileservices-critical-value').text(mobileservices_critical_value);
-    $('#mobileservices-error-value').text(mobileservices_error_value);
-    $('#mobileservices-warning-value').text(mobileservices_warning_value);
-    $('#reports-critical-value').text(reports_critical_value);
-    $('#reports-error-value').text(reports_error_value);
-    $('#reports-warning-value').text(reports_warning_value);
-    
-    
+    $('#youtility-critical-value').text(youtility_critical_value.toLocaleString());
+    $('#youtility-error-value').text(youtility_error_value.toLocaleString());
+    $('#youtility-warning-value').text(youtility_warning_value.toLocaleString());
+    $('#mobileservices-critical-value').text(mobileservices_critical_value.toLocaleString());
+    $('#mobileservices-error-value').text(mobileservices_error_value.toLocaleString());
+    $('#mobileservices-warning-value').text(mobileservices_warning_value.toLocaleString());
+    $('#reports-critical-value').text(reports_critical_value.toLocaleString());
+    $('#reports-error-value').text(reports_error_value.toLocaleString());
+    $('#reports-warning-value').text(reports_warning_value.toLocaleString());
 }
 
 
@@ -455,60 +472,129 @@ document.getElementById('dashboard-page').onclick = function(){
 }
 
 var myChart = null;
-var youtility_graph_data = [[12,34,26,28,12,29,14],[10,32,24,10,19,22,18],[10,32,16,12,26,19,11]]
-myChart = render_graph(youtility_graph_data)
+get_youtility_graph_data()
+
+function get_youtility_graph_data(){
+    $(function(){
+        $.ajax({
+            url:`get_youtility_graph_data`,
+            dataType:`json`,
+            success: function(data){
+                var date = data['log_date']
+                var log_data = data['data']
+                console.log(log_data)
+                var labels = ['Youtility - Critical','Youtility - Error','Youtility - Warning']
+                render_graph(date, log_data, labels)
+            }
+        })
+    })
+}
+
+function get_mobileservices_graph_data(){
+    $(function(){
+        $.ajax({
+            url:`get_mobileservices_graph_data`,
+            dataType:`json`,
+            success: function(data){
+                var date = data['log_date']
+                var log_data = data['data']
+                console.log(date)
+                console.log(log_data)
+                var labels = ['Mobileservices - Critical','Mobileservices - Error','Mobileservices - Warning']
+                render_graph(date, log_data, labels)
+            }
+        })
+    })
+}
+
+function get_reports_graph_data(){
+    $(function(){
+        $.ajax({
+            url:`get_reports_graph_data`,
+            dataType:`json`,
+            success: function(data){
+                var date = data['log_date']
+                var log_data = data['data']
+                console.log(log_data)
+                var labels = ['Reports - Critical','Reports - Error','Reports - Warning']
+                render_graph(date, log_data, labels)
+            }
+        })
+    })
+}
 
 
 document.getElementById('youtility-graph').onclick = function(){
     console.log('youtility-log')
-    var youtility_graph_data = [[12,34,26,28,12,29,14],[10,32,24,10,19,22,18],[10,32,16,12,26,19,11]]
-    myChart = render_graph(youtility_graph_data)
+    get_youtility_graph_data()
+ 
 }
 
 document.getElementById('mobileservice-graph').onclick = function(){
     console.log('mobileservice-log');
-    var mobileservices_graph_data = [[10,32,24,10,19,22,18],[12,34,26,28,12,29,14],[10,32,24,0,19,22,18]]
-    myChart = render_graph(mobileservices_graph_data)
+    get_mobileservices_graph_data()
+    // var mobileservices_graph_data = [[10,32,24,10,19,22,18],[12,34,26,28,12,29,14],[10,32,24,0,19,22,18]]
+    // // myChart = render_graph(mobileservices_graph_data)
 }
 
 document.getElementById('reports-graph').onclick = function(){
     console.log('reports-log');
+    get_reports_graph_data()
     var reports_graph_data = [[10,32,16,12,26,19,11,13,15],[12,34,26,28,12,29,14],[10,32,24,10,19,22,18]]
-    myChart = render_graph(reports_graph_data)
+    // myChart = render_graph(reports_graph_data)
 }
 
 
-function render_graph(data){
+function render_graph(date, data, labels){
+    console.log(document.getElementById('myChart'))
     var ctx = document.getElementById('myChart').getContext('2d');
     if(myChart){
         myChart.destroy()
     }
-    console.log(data)
     var chartData = {
         
-      labels: ['Time1', 'Time2', 'Time3','Time4', 'Time5', 'Time6','Time7','Time8','Time9','Time10'], // Populate with your time data
+      labels: date, // Populate with your time data
       datasets: [
           {
-              label: 'Youtility - Critical',
+              label: labels[0],
               data: data[0], // Your count data here
-              borderColor: 'red',
-              hidden: false, // Initially hide this dataset
+              borderColor: '#004E89',
+              hidden: false,
+              borderWidth:1.5
           },
           {
-              label: 'Youtility - Error',
+              label: labels[1],
               data: data[1],
-              borderColor: 'orange',
-              hidden: false, // Initially hide this dataset
+              borderColor: '#FF6B6B',
+              hidden: false,
+              borderWidth:1.5
           },
           {
-            label: 'Youtility - Warning',
+            label: labels[2],
             data: data[2],
-            borderColor: 'yellow',
-            hidden: false, // Initially hide this dataset
+            borderColor: 'black',
+            hidden: false, 
+            borderWidth:1.5
         },
          
       ]
     };
+
+    const backgroundColorPlugin = {
+        id: 'backgroundColorPlugin',
+        beforeDraw: (chart, args, options) => {
+          const ctx = chart.ctx;
+          const canvas = chart.canvas;
+          const chartArea = chart.chartArea;
+      
+          ctx.fillStyle = options.backgroundColor; // Set the color from options
+          ctx.fillRect(chartArea.left, chartArea.top, chartArea.right - chartArea.left, chartArea.bottom - chartArea.top);
+        }
+      };
+      
+      // Register the plugin
+    Chart.register(backgroundColorPlugin);
+
     myChart = new Chart(ctx, {
       type: 'line',
       data: chartData,
@@ -517,6 +603,21 @@ function render_graph(data){
               y: {
                   beginAtZero: true
               }
+          },
+          plugins:{
+            legend: {
+                labels: {
+                  // Here you can customize the legend font size, color, etc.
+                  font: {
+                    weight: 'bold', // Set your desired font size here
+                    // family: 'Arial', // Optional: If you want to change the font family
+                  },
+                  color: '#666', // Optional: If you want to change the text color
+                }
+              },
+            backgroundColorPlugin: {
+                backgroundColor: '#F5F5F5' // Change to your desired color
+              }
           }
       }
   });
@@ -524,8 +625,145 @@ function render_graph(data){
   }
 
 
+function render_chart(method_name, no_of_times_called){
+    const data = {
+        labels: [
+          'Youtility-critical',
+          'Youtility-error',
+          'Youtility-warning',
+          'Mobileserivces-critical',
+          'Mobileserivces-error',
+          'Mobileserivces-warning',
+          'Reports-critical',
+          'Reports-error',
+          'Reports-warning',
+          
+        ],
+        datasets: [{
+          label: 'My First Dataset',
+          data: no_of_times_called, // Assuming these are your data points
+          backgroundColor: [
+            '#01569a',
+            '#397fb8',
+            '#5091c7',
+            '#212529',
+            '#343a40',
+            '#495057',
+            '#ff5858',
+            '#ff6b6b',
+            '#ff7d7d'
+          ],
+          hoverOffset: 4
+        }]
+      };
+      
+      // Assuming you have these method names aligned with your labels/data points
+      const methodNames = method_name;
+      
+      const config = {
+        type: 'doughnut',
+        data: data,
+        options: {
+          plugins: {
+            legend: {
+                labels: {
+                  // Here you can customize the legend font size, color, etc.
+                  font: {
+                    weight: 'bold', // Set your desired font size here
+                    // family: 'Arial', // Optional: If you want to change the font family
+                  },
+                  color: '#666', // Optional: If you want to change the text color
+                }
+              },
+            backgroundColorPlugin: {
+                backgroundColor: '#F5F5F5' 
+              },
+            tooltip: {
+              callbacks: {
+                beforeBody: function(context) {
+                  const index = context[0].dataIndex;
+                  return [`Method: ${methodNames[index]}`, `Value: ${context[0].raw}`];
+                },
+                label: function(context) {
+                  return `${context.label}`;
+                }
+              }
+            }
+          }
+        }
+      };
+      
+      // Assuming you have a <canvas> element in your HTML with id="myChart"
+      const ctx = document.getElementById('myDounghtChart').getContext('2d');
+      const myDoughNutChart = new Chart(ctx, config);
+}
 
 
+//   const data = {
+//     labels: [
+//       'Youtility-critical',
+//       'Youtility-error',
+//       'Youtility-warning',
+//       'Mobileserivces-critical',
+//       'Mobileserivces-error',
+//       'Mobileserivces-warning',
+//       'Reports-critical',
+//       'Reports-error',
+//       'Reports-warning',
+      
+//     ],
+//     datasets: [{
+//       label: 'My First Dataset',
+//       data: [39, 30, 40,50,22,34,11,45,44], // Assuming these are your data points
+//       backgroundColor: [
+//         '#01569a',
+//         '#397fb8',
+//         '#5091c7',
+//         '#212529',
+//         '#343a40',
+//         '#495057',
+//         '#ff5858',
+//         '#ff6b6b',
+//         '#ff7d7d'
+//       ],
+//       hoverOffset: 4
+//     }]
+//   };
+  
+//   // Assuming you have these method names aligned with your labels/data points
+//   const methodNames = ['methodname1', 'methodname2', 'methodname3','methodname4', 'methodname5', 'methodname6','methodname7', 'methodname8', 'methodname9'];
+  
+//   const config = {
+//     type: 'doughnut',
+//     data: data,
+//     options: {
+//       plugins: {
+//         backgroundColorPlugin: {
+//             backgroundColor: '#F5F5F5' // Change to your desired color
+//           },
+//         tooltip: {
+//           callbacks: {
+//             // Use the footer callback to add additional lines of text
+//             beforeBody: function(context) {
+//               // context is an array of tooltip items, you can get the first item assuming one tooltip at a time
+//               const index = context[0].dataIndex;
+//               // Return the custom text you want to show in the tooltip
+//               return [`Method: ${methodNames[index]}`, `Value: ${context[0].raw}`];
+//             },
+//             // Optionally, you can modify the label to show or hide it
+//             label: function(context) {
+//               // Returning an empty string will hide the default label
+//               return `${context.label}`;
+//             }
+//           }
+//         }
+//       }
+//     }
+//   };
+  
+//   // Assuming you have a <canvas> element in your HTML with id="myChart"
+//   const ctx = document.getElementById('myDounghtChart').getContext('2d');
+//   const myDoughNutChart = new Chart(ctx, config);
 
 
 
