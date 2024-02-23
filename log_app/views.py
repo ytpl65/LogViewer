@@ -98,13 +98,15 @@ def get_particular_data(request, pk:int,log_type:str, is_error_table:str)-> Json
     Returns:
     - JsonResponse: JSON response containing the requested data.
     """
+    
     try:
         if is_error_table.lower() == 'true':
             log_data = get_object_or_404(Error_logs,id=pk,log_file_type_name = log_type)
+            Model = Error_logs
         else:
             if log_type == 'youtility4':
                 Model = Youtility_logs
-            elif log_type == 'mobileservices':
+            elif log_type == 'mobileservice':
                 Model = Mobileservices_logs
             else:
                 Model = Reports_logs
@@ -112,7 +114,7 @@ def get_particular_data(request, pk:int,log_type:str, is_error_table:str)-> Json
         response = construct_response(log_data,Model)
         return JsonResponse({'data':response})
     except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+        return JsonResponse({'error':str(e)},status=500)
 
 
 

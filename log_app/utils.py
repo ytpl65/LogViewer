@@ -10,6 +10,7 @@ import pytz
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from typing import Dict,Union,List,Any
+from django.db.utils import OperationalError
 
 def get_file_names(dir_path):
     """ 
@@ -150,14 +151,18 @@ def extract_data_from_file_using_regualar_expression(timestamp_regex,error_level
     """ 
     This function extract the data from the content and stores in the respect array for traceback,timestamps,function_names,log_messages,log_levels and return the same
     """
-    traceback = re.findall(expression,content,flags=re.DOTALL)
-    timestamps = re.findall(timestamp_regex, content, flags=re.DOTALL)
-    function_names = re.findall(function_name_regex, content, flags=re.DOTALL)
-    log_messages = re.findall(log_message_regex, content, flags=re.DOTALL)
-    log_levels   = re.findall(error_level_regex,content,flags=re.DOTALL)
-    structed_timestamp = create_structed_timestamp_dict(traceback)
-    
-    return traceback, timestamps,function_names,log_messages, log_levels,structed_timestamp
+    try:
+        traceback = re.findall(expression,content,flags=re.DOTALL)
+        timestamps = re.findall(timestamp_regex, content, flags=re.DOTALL)
+        function_names = re.findall(function_name_regex, content, flags=re.DOTALL)
+        log_messages = re.findall(log_message_regex, content, flags=re.DOTALL)
+        log_levels   = re.findall(error_level_regex,content,flags=re.DOTALL)
+        structed_timestamp = create_structed_timestamp_dict(traceback)
+        
+        return traceback, timestamps,function_names,log_messages, log_levels,structed_timestamp
+    except Exception as e:
+        print(f"An error occured:{e}")
+        return [],[],[],[],[],[]
     
 
 
@@ -169,21 +174,26 @@ def normal_arr_and_error_arr(timestamps,function_names,log_messages,log_levels,t
     log_error_arr( CRITICAL,ERROR)
     
     """
-    log_normal_arr = []
-    log_error_arr = []
-    for x in zip(timestamps,function_names,log_messages,log_levels):
-        if x[3]=='CRITICAL' or x[3]=='ERROR':
-            timestamp = str(x[0])
-            if timestamp in structed_timestamp:
-                record = structed_timestamp[timestamp]
-                exception_name = get_exception_name(record[1])
+    try:
+        log_normal_arr = []
+        log_error_arr = []
+        for x in zip(timestamps,function_names,log_messages,log_levels):
+            if x[3]=='CRITICAL' or x[3]=='ERROR':
+                timestamp = str(x[0])
+                if timestamp in structed_timestamp:
+                    record = structed_timestamp[timestamp]
+                    exception_name = get_exception_name(record[1])
+                    cleaned_log_data = x[2].replace('\x00','')
+                    print({'timestamp':x[0],'function_name':x[1],'log_messages':cleaned_log_data,'log_levels':x[3],'traceback':record[1],'log_file_name_type':log_file_name_type,'exception_name':exception_name})
+                    log_error_arr.append({'timestamp':x[0],'function_name':x[1],'log_messages':cleaned_log_data,'log_levels':x[3],'traceback':record[1],'log_file_name_type':log_file_name_type,'exception_name':exception_name})
+            else:
                 cleaned_log_data = x[2].replace('\x00','')
-                print({'timestamp':x[0],'function_name':x[1],'log_messages':cleaned_log_data,'log_levels':x[3],'traceback':record[1],'log_file_name_type':log_file_name_type,'exception_name':exception_name})
-                log_error_arr.append({'timestamp':x[0],'function_name':x[1],'log_messages':cleaned_log_data,'log_levels':x[3],'traceback':record[1],'log_file_name_type':log_file_name_type,'exception_name':exception_name})
-        else:
-            cleaned_log_data = x[2].replace('\x00','')
-            log_normal_arr.append({'timestamp':x[0],'function_name':x[1],'log_messages':cleaned_log_data,'log_levels':x[3],'log_file_name_type':log_file_name_type})
-    return log_normal_arr,log_error_arr
+                log_normal_arr.append({'timestamp':x[0],'function_name':x[1],'log_messages':cleaned_log_data,'log_levels':x[3],'log_file_name_type':log_file_name_type})
+        return log_normal_arr,log_error_arr
+    except Exception as e:
+        print(f"An error occured:{e}")
+        return [],[]
+    
 
 
 def extract_log_data(file_path):
@@ -194,46 +204,56 @@ def extract_log_data(file_path):
     log_normal_arr -> All the log data except Traceback includes logs of [INFO,DEBUG,WARNING]
     log_error_arr -> All the log data with Traceback includes logs of [CRITICAL, ERROR]
     """
-    log_file_name_type = get_log_file_name_type(file_path)
-    with open(f'/home/satyam/Downloads/youtility4_logs/{file_path}', "r") as file:
-        timestamp_regex,error_level_regex,function_name_regex,log_message_regex,expression = regular_expression()
-        content = file.read()
-        traceback, timestamps,function_names,log_messages, log_levels, structed_timestamp =extract_data_from_file_using_regualar_expression(timestamp_regex,error_level_regex,function_name_regex,log_message_regex,expression,content)
-        log_normal_arr, log_error_arr = normal_arr_and_error_arr(timestamps,function_names,log_messages,log_levels,traceback,log_file_name_type,structed_timestamp)
-    return log_normal_arr, log_error_arr
+    try:
+        log_file_name_type = get_log_file_name_type(file_path)
+        with open(f'/home/satyam/Downloads/youtility4_logs/{file_path}', "r") as file:
+            timestamp_regex,error_level_regex,function_name_regex,log_message_regex,expression = regular_expression()
+            content = file.read()
+            traceback, timestamps,function_names,log_messages, log_levels, structed_timestamp =extract_data_from_file_using_regualar_expression(timestamp_regex,error_level_regex,function_name_regex,log_message_regex,expression,content)
+            log_normal_arr, log_error_arr = normal_arr_and_error_arr(timestamps,function_names,log_messages,log_levels,traceback,log_file_name_type,structed_timestamp)
+        return log_normal_arr, log_error_arr
+    except Exception as e:
+        print(f"An error occured:{e}")
+        return [],[]
 
 def inserting_into_table(normal_log_arr,model_name):
     """inserting data into database for normal_logs takes normal log array
     """
     for entry in normal_log_arr:
-        timestamp = parse_datetime(entry['timestamp'])
-        timestamp = timezone.make_aware(timestamp, timezone.get_default_timezone())
-        log_entry = model_name(
-            timestamp = timestamp,
-            log_level = entry['log_levels'],
-            method_name = entry['function_name'],
-            log_message = entry['log_messages'],
-            log_file_type_name = entry['log_file_name_type']
-        )
-        log_entry.save()
+        try:
+            timestamp = parse_datetime(entry['timestamp'])
+            timestamp = timezone.make_aware(timestamp, timezone.get_default_timezone())
+            log_entry = model_name(
+                timestamp = timestamp,
+                log_level = entry['log_levels'],
+                method_name = entry['function_name'],
+                log_message = entry['log_messages'],
+                log_file_type_name = entry['log_file_name_type']
+            )
+            log_entry.save()
+        except Exception as e:
+            print(f"Error occurred while inserting data: {e}")
 
 def inserting_into_error_table(error_log):
     """inserting data into database for error_logs takes error log array
     """
     for entry in error_log:
-        timestamp = parse_datetime(entry['timestamp'])
-        timestamp = timezone.make_aware(timestamp, timezone.get_default_timezone())
-        log_entry = Error_logs(
-            timestamp = timestamp,
-            log_level = entry['log_levels'],
-            method_name = entry['function_name'],
-            log_message = entry['log_messages'],
-            traceback = entry['traceback'],
-            log_file_type_name = entry['log_file_name_type'],
-            exceptionName = entry['exception_name']
-        )
-        log_entry.save()
-        print("Record Inserting Errors logs")
+        try:
+            timestamp = parse_datetime(entry['timestamp'])
+            timestamp = timezone.make_aware(timestamp, timezone.get_default_timezone())
+            log_entry = Error_logs(
+                timestamp = timestamp,
+                log_level = entry['log_levels'],
+                method_name = entry['function_name'],
+                log_message = entry['log_messages'],
+                traceback = entry['traceback'],
+                log_file_type_name = entry['log_file_name_type'],
+                exceptionName = entry['exception_name']
+            )
+            log_entry.save()
+            print("Record Inserting Errors logs")
+        except Exception as e:
+            print(f"Error occurred while inserting data: {e}")
 
 
 def return_start_end_date(date_str):
@@ -242,6 +262,7 @@ def return_start_end_date(date_str):
     start_date = date_str_split[0]
     end_date = date_str_split[1]
     return start_date,end_date
+
 
 
 def convert_string_date_to_date_time(date_str):
@@ -272,26 +293,35 @@ def get_start_and_end_date(date_str):
 def all_logs_date_critical_error_list(log_counts_by_date):
     """return all log files critical error date counts"""
     all_logs_date_critical_error = []
-    for x in log_counts_by_date:
-        ele = []
-        date = str(x['log_date'])
-        youtility_critical = x['youtility_critical']
-        youtility_error = x['youtility_error']
-        mobileservice_critical = x['mobileservice_critical']
-        mobileservice_error = x['mobileservice_error']
-        reports_critical = x['reports_critical']
-        reports_error = x['reports_error']
-        all_logs_date_critical_error.append([date,youtility_critical,youtility_error,mobileservice_critical,mobileservice_error,reports_critical,reports_error])
-    return all_logs_date_critical_error
+    try:
+        for x in log_counts_by_date:
+            ele = []
+            date = str(x['log_date'])
+            youtility_critical = x['youtility_critical']
+            youtility_error = x['youtility_error']
+            mobileservice_critical = x['mobileservice_critical']
+            mobileservice_error = x['mobileservice_error']
+            reports_critical = x['reports_critical']
+            reports_error = x['reports_error']
+            all_logs_date_critical_error.append([date,youtility_critical,youtility_error,mobileservice_critical,mobileservice_error,reports_critical,reports_error])
+        return all_logs_date_critical_error
+    except Exception as e:
+        print(f"An error occured:{e}")
+        return []
+    
 
 def date_warning_list(warning_logs_by_date, log_warning):
     """return an array which contains warning and log date"""
     date_warning = []
-    for x in warning_logs_by_date:
-        date = str(x['log_date'])
-        warning = x[log_warning]
-        date_warning.append([date,warning])
-    return date_warning
+    try:
+        for x in warning_logs_by_date:
+            date = str(x['log_date'])
+            warning = x[log_warning]
+            date_warning.append([date,warning])
+        return date_warning
+    except Exception as e:
+        print(f"An error occured:{e}")
+        return []
 
 def get_critical_error_warning_data(critical_error_warning_log_date_list_str,date_warning,critical_error_date,log_file,index_dictionary):
     """return two lists first list contains log date of critcal,error,warning and second list contains arrary of arrays critical data array, error data array,warning data array"""
@@ -300,32 +330,35 @@ def get_critical_error_warning_data(critical_error_warning_log_date_list_str,dat
     critical_data = []
     warning_data = []
     error_data = []
+    try:
+        for x in critical_error_warning_log_date_list_str:
+            record_present = False
+            for record in critical_error_date:
+                if record[0] == x:
+                    record_present = True
+                    critical_data.append(record[indexes[0]])
+                    error_data.append(record[indexes[1]])
+            if not record_present:
+                critical_data.append(0)
+                error_data.append(0)
+                
+            record_present = False 
+            for record in date_warning:
+                if record[0] == x:
+                    record_present = True 
+                    warning_data.append(record[1])
+            if not record_present:
+                warning_data.append(0)
 
-    for x in critical_error_warning_log_date_list_str:
-        record_present = False
-        for record in critical_error_date:
-            if record[0] == x:
-                record_present = True
-                critical_data.append(record[indexes[0]])
-                error_data.append(record[indexes[1]])
-        if not record_present:
-            critical_data.append(0)
-            error_data.append(0)
-            
-        record_present = False 
-        for record in date_warning:
-            if record[0] == x:
-                record_present = True 
-                warning_data.append(record[1])
-        if not record_present:
-            warning_data.append(0)
+        data = []
+        data.append(critical_data)
+        data.append(error_data)
+        data.append(warning_data)
 
-    data = []
-    data.append(critical_data)
-    data.append(error_data)
-    data.append(warning_data)
-
-    return critical_error_warning_log_date_list_str,data    
+        return critical_error_warning_log_date_list_str,data 
+    except Exception as e:
+        print(f"An error occured:{e}")
+        return [],[]
 
 
 
@@ -346,11 +379,16 @@ def get_warning_date(warning_logs_by_date):
 
 def get_critical_error_warning_date_in_list(warning_date,all_logs_critical_error_date):
     """adds critical error date list and warning date list and returns a combined sorted date array"""
-    critical_error_warning_log_date = warning_date+all_logs_critical_error_date
-    critical_error_warning_log_date = set(critical_error_warning_log_date)
-    critical_error_warning_log_date_list = (list(critical_error_warning_log_date))
-    critical_error_warning_log_date_list.sort()
-    return critical_error_warning_log_date_list
+    try:
+        critical_error_warning_log_date = warning_date+all_logs_critical_error_date
+        critical_error_warning_log_date = set(critical_error_warning_log_date)
+        critical_error_warning_log_date_list = (list(critical_error_warning_log_date))
+        critical_error_warning_log_date_list.sort()
+        return critical_error_warning_log_date_list
+    except Exception as e:
+        print(f"An error occured:{e}")
+        return []
+    
 
 
 def convert_critical_error_warning_log_date_in_list_to_str(critical_error_warning_log_date_in_list):
@@ -358,9 +396,13 @@ def convert_critical_error_warning_log_date_in_list_to_str(critical_error_warnin
     This function converts the critical_error_warning_log date to str and return this
     """
     critical_error_warning_log_date_list_str = []
-    for date in critical_error_warning_log_date_in_list:
-        critical_error_warning_log_date_list_str.append(str(date))
-    return critical_error_warning_log_date_list_str
+    try:
+        for date in critical_error_warning_log_date_in_list:
+            critical_error_warning_log_date_list_str.append(str(date))
+        return critical_error_warning_log_date_list_str
+    except Exception as e:
+        print(f"An error occured:{e}")
+        return []
 
 
 
@@ -404,15 +446,19 @@ def convert_queryset_to_list(data):
     This function return the convert the queryset to list and returns it.
     """
     queryset_list = []
-    if len(data)>0:
-        method_name = data[0]['method_name']
-        no_of_times = data[0]['no_of_times_called']
-        queryset_list.append(method_name)
-        queryset_list.append(no_of_times)
-    else:
-        queryset_list.append(0)
-        queryset_list.append(0)
-    return queryset_list
+    try:
+        if len(data)>0:
+            method_name = data[0]['method_name']
+            no_of_times = data[0]['no_of_times_called']
+            queryset_list.append(method_name)
+            queryset_list.append(no_of_times)
+        else:
+            queryset_list.append(0)
+            queryset_list.append(0)
+        return queryset_list
+    except Exception as e:
+        print(f"An error occured:{e}")
+        return []
 
 def get_top_methods(log_file_type_name):
     return (
@@ -503,12 +549,16 @@ def get_response_data(response):
     """
     method_name = []
     no_of_times_called = []
-    for data in response:
-        print(data)
-        print(data[0],data[1])
-        method_name.append(response[data][0])
-        no_of_times_called.append(response[data][1])
-    return method_name,no_of_times_called
+    try:
+        for data in response:
+            print(data)
+            print(data[0],data[1])
+            method_name.append(response[data][0])
+            no_of_times_called.append(response[data][1])
+        return method_name,no_of_times_called
+    except Exception as e:
+        print(f"An error occured:{e}")
+        return [],[]
 
 
 def extract_response_data(request: Any) -> List[Union[int, str]]:
@@ -543,15 +593,19 @@ def get_response_data(page_obj: Any, is_error_table_data: bool) -> List[Dict[str
     - List[Dict[str, Union[str, int]]]: List of response data dictionaries.
     """
     data = []
-    for obj in page_obj:
-        data.append({
-            "timestamp":obj.timestamp,
-            "log_level":obj.log_level,
-            "method_name":obj.method_name,
-            "log_message":obj.log_message,
-            "view": [obj.id,obj.log_file_type_name, is_error_table_data]
-        })
-    return data
+    try:
+        for obj in page_obj:
+            data.append({
+                "timestamp":obj.timestamp,
+                "log_level":obj.log_level,
+                "method_name":obj.method_name,
+                "log_message":obj.log_message,
+                "view": [obj.id,obj.log_file_type_name, is_error_table_data]
+            })
+        return data
+    except Exception as e:
+        print(f"An error occured:{e}")
+        return []
 
 def get_response_json(draw,log_entries,response_data):
     """
@@ -580,18 +634,22 @@ def  get_response_error_data(page_obj,is_error_table_data):
     This function creates a error response data which contains timestamp,log_level,method_name,log_message,traceback,exceptioname,log_file_type,view and return it.
     """
     data = []
-    for obj in page_obj:
-        data.append({
-            "timestamp":obj.timestamp,
-            "log_level":obj.log_level,
-            "method_name":obj.method_name,
-            "log_message":obj.log_message,
-            "traceback":obj.traceback,
-            "exceptionName":obj.exceptionName,
-            "log_file_type_name":obj.log_file_type_name,
-            "view": [obj.id,obj.log_file_type_name,is_error_table_data]
-        })
-    return data
+    try:
+        for obj in page_obj:
+            data.append({
+                "timestamp":obj.timestamp,
+                "log_level":obj.log_level,
+                "method_name":obj.method_name,
+                "log_message":obj.log_message,
+                "traceback":obj.traceback,
+                "exceptionName":obj.exceptionName,
+                "log_file_type_name":obj.log_file_type_name,
+                "view": [obj.id,obj.log_file_type_name,is_error_table_data]
+            })
+        return data
+    except Exception as e:
+        print(f"An error occured:{e}")
+        return []
 
 
 def get_error_filter(request):
@@ -629,10 +687,8 @@ def get_error_filter(request):
 def construct_response(log_data: Union[Error_logs,Youtility_logs,Mobileservices_logs,Reports_logs],Model) -> Dict[str, Union[str, int]]:
     """
     Construct response dictionary based on the type of log_data.
-
     Parameters:
     - log_data (Union[Error_logs, Youtility_logs, Mobileservices_logs, Reports_logs]): The log data object.
-
     Returns:
     - Dict[str, Union[str, int]]: Response dictionary containing log data.
     """
@@ -648,7 +704,6 @@ def construct_response(log_data: Union[Error_logs,Youtility_logs,Mobileservices_
             'exceptionname':log_data.exceptionName,
             'log_type':log_data.log_file_type_name
         })
-    print(response)
     return response
 
 
