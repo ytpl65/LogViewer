@@ -1,318 +1,263 @@
 from django.shortcuts import render
-from django.http import JsonResponse,HttpResponse
+from django.http import JsonResponse
 from .models import Youtility_logs,Mobileservices_logs,Reports_logs,Error_logs
-from django.db.models import Q,Count,Case,When,Value,IntegerField
-from django.db.models.functions import TruncDate
-
-
-# Create your views here.
-from .utils import get_start_and_end_date,query_filter,convert_queryset_to_list,get_error_top_method,get_response_data,get_critical_top_method,get_mobileservices_warning_top_method,get_reports_warning_top_method,get_youtility_warning_top_method,get_mobileservices_warning_logs_count_with_date,get_mobileservices_warning_date,get_top_methods,mobileservices_date_warning_list,get_youtility_warning_logs_count_with_date,get_all_logs_critical_error_count_with_date,get_youtility_warning_date,get_critical_error_date,convert_critical_error_warning_log_date_in_list_to_str,get_critical_error_warning_date_in_list,all_logs_date_critical_error_list,get_critical_error_warning_data,get_reports_warning_logs_count_with_date,get_reports_warning_date,reports_date_warning_list,youtility_date_warning_list
+from django.shortcuts import get_object_or_404
 from django.core.paginator import Paginator
+from .utils import *
+
+
 def home(request):
-    return render(request,'log_select.html')
+    return render(request,'base.html')
 
 def get_youtility_logs(request):
-    draw = int(request.GET.get('draw',0))
-    start = int(request.GET.get('start', 0))
-    length = int(request.GET.get('length', 25))
-    field_index = request.GET.get('order[0][column]','0')
-    field_name = request.GET.get(f'columns[{field_index}][data]')
-    direction = request.GET.get('order[0][dir]')
+    """
+    Get Youtility logs and return JSON response.
 
-    order_by_field = f'-{field_name}' if direction == 'desc' else field_name
-    filter = query_filter(request)
-    if filter:
-        log_entries = Youtility_logs.objects.filter(**filter)
-    else:
-        log_entries = Youtility_logs.objects.all().order_by(order_by_field)
-    paginator = Paginator(log_entries,length)
-    page_number = (start // length) +1
-    page_obj = paginator.get_page(page_number)
-    is_error_table_data = False
-    data = []
-    for obj in page_obj:
-        data.append({
-            "timestamp":obj.timestamp,
-            "log_level":obj.log_level,
-            "method_name":obj.method_name,
-            "log_message":obj.log_message,
-            "view": [obj.id,obj.log_file_type_name, is_error_table_data]
-        })
-    response = {
-        'draw':draw,
-        'recordsTotal':log_entries.count(),
-        'recordsFiltered':log_entries.count(),
-        'data':data
-    }
-    return JsonResponse(response)
+    Parameters:
+    - request: HTTP request object.
 
-
+    Returns:
+    - JsonResponse: JSON response containing Youtility logs.
+    """
+    return get_logs(request,Youtility_logs)
 
 
 def get_mobileservices_logs(request):
-    draw = int(request.GET.get('draw',0))
-    start = int(request.GET.get('start', 0))
-    length = int(request.GET.get('length', 25))
-    field_index = request.GET.get('order[0][column]')
-    field_name = request.GET.get(f'columns[{field_index}][data]')
-    direction = request.GET.get('order[0][dir]')
-    order_by_field = f'-{field_name}' if direction == 'desc' else field_name
-    filter = query_filter(request)
-    if filter:
-        log_entries = Mobileservices_logs.objects.filter(**filter)
-    else:
-        log_entries = Mobileservices_logs.objects.all().order_by(order_by_field)
-    paginator = Paginator(log_entries,length)
-    page_number = (start // length) +1
-    page_obj = paginator.get_page(page_number)
-    is_error_table_data = False
-    data = []
-    for obj in page_obj:
-        data.append({
-            "timestamp":obj.timestamp,
-            "log_level":obj.log_level,
-            "method_name":obj.method_name,
-            "log_message":obj.log_message,
-            "view": [obj.id,obj.log_file_type_name,is_error_table_data]
-        })
-    response = {
-        'draw':draw,
-        'recordsTotal':log_entries.count(),
-        'recordsFiltered':log_entries.count(),
-        'data':data
-    }
+    """
+    Get Mobileservice logs and return JSON response.
 
-    return JsonResponse(response)
+    Parameters:
+    - request: HTTP request object.
+
+    Returns:
+    - JsonResponse: JSON response containing MobileService logs.
+    """
+    return get_logs(request, Mobileservices_logs)
 
 
 def get_reports_logs(request):
-    draw = int(request.GET.get('draw',0))
-    start = int(request.GET.get('start', 0))
-    length = int(request.GET.get('length', 25))
-    field_index = request.GET.get('order[0][column]')
-    field_name = request.GET.get(f'columns[{field_index}][data]')
-    direction = request.GET.get('order[0][dir]')
-    order_by_field = f'-{field_name}' if direction == 'desc' else field_name
-    filter = query_filter(request)
-    if filter:
-        log_entries = Reports_logs.objects.filter(**filter)
-    else:
-        log_entries = Reports_logs.objects.all().order_by(order_by_field)
-    
-    pagintor = Paginator(log_entries, length)
-    page_number = (start // length ) + 1
-    page_obj = pagintor.get_page(page_number)
+    """
+    Get Reports logs and return JSON response.
 
-    is_error_table_data = False
-    data = []
-    for obj in page_obj:
-        data.append({
-            "timestamp":obj.timestamp,
-            "log_level":obj.log_level,
-            "method_name":obj.method_name,
-            "log_message":obj.log_message,
-            "view": [obj.id,obj.log_file_type_name, is_error_table_data]
-        })
-    response = {
-        'draw':draw,
-        'recordsTotal':log_entries.count(),
-        'recordsFiltered':log_entries.count(),
-        'data':data
-    }
+    Parameters:
+    - request: HTTP request object.
 
-    return JsonResponse(response)
+    Returns:
+    - JsonResponse: JSON response containing Reports logs.
+    """
+    return get_logs( request, Reports_logs)
 
 def get_error_logs(request):
-    draw = int(request.GET.get('draw',0))
-    start = int(request.GET.get('start', 0))
-    length = int(request.GET.get('length', 25))
-    field_index = request.GET.get('order[0][column]')
-    field_name = request.GET.get(f'columns[{field_index}][data]')
-    direction = request.GET.get('order[0][dir]')
+    """
+    Get error logs and return JSON response.
+
+    This function takes request as an input extract the necessary data like draw,start
+    length,order_by_field based on this it creates filter then retrieve the logs from Error Logs
+    Parameters:
+    - request: HTTP request object.
+
+    Returns:
+    - JsonResponse: JSON response containing error logs data, recordPassed, recordFiltered ,draw.
     
-    order_by_field = f'-{field_name}' if direction == 'desc' else field_name
-
-    filter = {} 
-    for i in range(7):
-        column_search_value = request.GET.get(f'columns[{i}][search][value]',None)
-        if column_search_value:
-            if i==0:
-                start_date, end_date = get_start_and_end_date(column_search_value)
-                filter['timestamp__range'] = (start_date,end_date)
-            elif i == 1:
-                filter['log_level__icontains'] = column_search_value
-            elif i == 2:
-                filter['method_name__icontains'] = column_search_value
-            elif i == 3:
-                filter['log_message__icontains'] = column_search_value
-            elif i==4:
-                filter['traceback__icontains'] = column_search_value
-            elif i==5:
-                filter['exceptionName__icontains'] = column_search_value
-            elif i==6:
-                filter['log_file_type_name__icontains'] = column_search_value
-    if filter:
-        log_entries = Error_logs.objects.filter(**filter)
-    else:
-        log_entries = Error_logs.objects.all().order_by(order_by_field)
-    paginator = Paginator(log_entries,length)
-    page_number = (start//length)+1
-    page_obj = paginator.get_page(page_number)
-    is_error_table_data = True
-    data = []
-    for obj in page_obj:
-        data.append({
-            "timestamp":obj.timestamp,
-            "log_level":obj.log_level,
-            "method_name":obj.method_name,
-            "log_message":obj.log_message,
-            "traceback":obj.traceback,
-            "exceptionName":obj.exceptionName,
-            "log_file_type_name":obj.log_file_type_name,
-            "view": [obj.id,obj.log_file_type_name,is_error_table_data]
-        })
-    response = {
-        'draw':draw,
-        'recordsTotal':log_entries.count(),
-        'recordsFiltered':log_entries.count(),
-        'data':data
-    }
-    return JsonResponse(response)
-
-
-def get_particular_data(request, pk,log_type, is_error_table):
-
-    if is_error_table == 'true':
- 
-        log_data = Error_logs.objects.get(id=pk,log_file_type_name=log_type)
-        response = {
-            'timestamp':log_data.timestamp,
-            'log_level':log_data.log_level,
-            'method_name':log_data.method_name,
-            'log_message':log_data.log_message,
-            'traceback':log_data.traceback,
-            'exceptionname':log_data.exceptionName,
-            'log_type':log_data.log_file_type_name
-        }
-    else:
-        if log_type=='youtility4':
-            log_data = Youtility_logs.objects.get(id=pk)
-        elif log_type == 'mobileservice':
-            log_data = Mobileservices_logs.objects.get(id=pk)
+    Raises:
+    - Exception: If an error occurs during the execution of the function,
+      an error JSON response with the error message is returned with a status
+      code of 500.
+    """
+    try:
+        response_data = extract_response_data(request)
+        draw = response_data[0]
+        start = response_data[1]
+        length = response_data[2]
+        order_by_field = response_data[6]
+        filter = get_error_filter(request)
+        if filter:
+            log_entries = Error_logs.objects.filter(**filter)
         else:
-            log_data = Reports_logs.objects.get(id=pk)
+            log_entries = Error_logs.objects.all().order_by(order_by_field)
+        paginator = Paginator(log_entries,length)
+        page_number = (start//length)+1
+        page_obj = paginator.get_page(page_number)
+        is_error_table_data = True
+        response_data = get_response_error_data(page_obj,is_error_table_data)
+        response_json = get_response_json(draw,log_entries,response_data)
+        return JsonResponse(response_json)
+    except Exception as e:
+        return JsonResponse({'error':str(e)},status=500)
+    
+def get_particular_data(request, pk:int,log_type:str, is_error_table:str)-> JsonResponse:
+    """
+    Get particular data based on primary key, log type, and error table flag.
 
-        response = {
-            'timestamp':log_data.timestamp,
-            'log_level':log_data.log_level,
-            'method_name':log_data.method_name, 
-            'log_message':log_data.log_message
-        }
-    return JsonResponse({'data':response})
+    Parameters:
+    - request: HTTP request object.
+    - pk (int): Primary key of the log entry.
+    - log_type (str): Type of log entry.
+    - is_error_table (str): Flag indicating if it's an error table.
+
+    Returns:
+    - JsonResponse: JSON response containing the requested data.
+    """
+    try:
+        if is_error_table.lower() == 'true':
+            log_data = get_object_or_404(Error_logs,id=pk,log_file_type_name = log_type)
+        else:
+            if log_type == 'youtility4':
+                Model = Youtility_logs
+            elif log_type == 'mobileservices':
+                Model = Mobileservices_logs
+            else:
+                Model = Reports_logs
+            log_data = get_object_or_404(Model,id=pk)
+        response = construct_response(log_data,Model)
+        return JsonResponse({'data':response})
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
 
 
 def get_dashboard_data(request):
-    youtility_critical_count = len(Error_logs.objects.filter(log_level='CRITICAL',log_file_type_name='youtility4'))
-    youtility_error_count = len(Error_logs.objects.filter(log_level='ERROR',log_file_type_name='youtility4'))
-    youtility_warning_count = len(Youtility_logs.objects.filter(log_level='WARNING'))
+    """
+    Retrieve dashboard data including counts of critical, error, and warning logs
+    for different log types, and return a JSON response.
 
-    mobileservices_critical_count = len(Error_logs.objects.filter(log_level='CRITICAL',log_file_type_name='mobileservice')) 
-    mobileservices_error_count = len(Error_logs.objects.filter(log_level='ERROR',log_file_type_name='mobileservice'))   
-    mobileservices_warning_count = len(Mobileservices_logs.objects.filter(log_level='WARNING'))   
-    
-    reports_critical_count = len(Error_logs.objects.filter(log_level='CRITICAL',log_file_type_name='reports'))  
-    reports_error_count = len(Error_logs.objects.filter(log_level='ERROR',log_file_type_name='reports'))    
-    reports_warning_count = len(Reports_logs.objects.filter(log_level='WARNING'))    
-    
-    response = {
-        'youtility_critical':youtility_critical_count,
-        'youtility_error':youtility_error_count,
-        'youtility_warning':youtility_warning_count,
-        'mobileservices_critical':mobileservices_critical_count,
-        'mobileservices_error': mobileservices_error_count,
-        'mobileservices_warning':mobileservices_warning_count,
-        'reports_critical':reports_critical_count,
-        'reports_error':reports_error_count,
-        'reports_warning':reports_warning_count
-    }
-    return JsonResponse(response)
-    
+    Parameters:
+    - request: HTTP request object.
 
-index_dictionary = {'youtility4':[1,2],'mobileservices':[3,4],'reports':[5,6]}
+    Returns:
+    - JsonResponse: JSON response containing dashboard data.
+
+    Raises:
+    - Exception: If an error occurs during the execution, an error JSON response
+      with the error message is returned with a status code of 500.
+    """
+    try:
+        youtility_critical_count = Error_logs.objects.filter(log_level='CRITICAL',log_file_type_name='youtility4').count()
+        youtility_error_count = Error_logs.objects.filter(log_level='ERROR',log_file_type_name = 'youtility4').count()
+        youtility_warning_count = Youtility_logs.objects.filter(log_level='WARNING').count()
+
+        mobileservices_critical_count = Error_logs.objects.filter(log_level='CRITICAL',log_file_type_name='mobileservice').count() 
+        mobileservices_error_count = Error_logs.objects.filter(log_level='ERROR',log_file_type_name='mobileservice').count()
+        mobileservices_warning_count = Mobileservices_logs.objects.filter(log_level='WARNING').count()
+
+        reports_critical_count = Error_logs.objects.filter(log_level='CRITICAL',log_file_type_name='reports').count()  
+        reports_error_count = Error_logs.objects.filter(log_level='ERROR',log_file_type_name='reports').count()
+        reports_warning_count = Reports_logs.objects.filter(log_level='WARNING').count()
+        
+        response = {
+            'youtility_critical':youtility_critical_count,
+            'youtility_error':youtility_error_count,
+            'youtility_warning':youtility_warning_count,
+            'mobileservices_critical':mobileservices_critical_count,
+            'mobileservices_error': mobileservices_error_count,
+            'mobileservices_warning':mobileservices_warning_count,
+            'reports_critical':reports_critical_count,
+            'reports_error':reports_error_count,
+            'reports_warning':reports_warning_count
+        }
+        return JsonResponse(response)
+    except Exception as e:
+        return JsonResponse({'error':str(e)}, status=500)
 
     
 def get_youtility_graph_data(request):
+    """
+    Retrieve Youtility graph data and return JSON response.
+
+    This function retrieves Youtility graph data including critical and error logs count with date,
+    warning logs count with date, and constructs the response.
+
+    Parameters:
+    - request: HTTP request object.
+
+    Returns:
+    - JsonResponse: JSON response containing Youtility graph data.
+
+    Raises:
+    - Exception: If an error occurs during the execution, an error JSON response
+      with the error message is returned with a status code of 500.
+    """
     log_file = 'youtility4'
-    all_logs_critical_error_count_with_date = get_all_logs_critical_error_count_with_date()
-    # This will contanis an array of array which where at index 0 I have following data ['2023-03-24',0,5,3,5,7,8]
-    all_logs_critical_error_date = all_logs_date_critical_error_list(all_logs_critical_error_count_with_date)
-    # This will give me all date in array called critical_error_date
-    all_logs_critical_error_date_only = get_critical_error_date(all_logs_critical_error_count_with_date)
-    youtility_warning_logs_count_with_date = get_youtility_warning_logs_count_with_date()
-    youtility_warning_date_list = get_youtility_warning_date(youtility_warning_logs_count_with_date)
-
-    youtility_date_with_warning_count_list = youtility_date_warning_list(youtility_warning_logs_count_with_date)
-
-    youtility_critical_error_warning_log_date_in_list = get_critical_error_warning_date_in_list(youtility_warning_date_list,all_logs_critical_error_date_only)
-    youtility_critical_error_warning_log_date_list_in_str = convert_critical_error_warning_log_date_in_list_to_str(youtility_critical_error_warning_log_date_in_list)
-    log_date, data = get_critical_error_warning_data(youtility_critical_error_warning_log_date_list_in_str,youtility_date_with_warning_count_list,all_logs_critical_error_date,log_file,index_dictionary)
-
-    response = {
-        'log_date':log_date,
-        'data':data
-    }
-    return JsonResponse(response)
+    modelName = Youtility_logs
+    log_warning = 'youtility_warning'
+    return get_graph_data(log_file,modelName,log_warning)
 
 def get_mobileservices_graph_data(request):
+    """
+    Retrieve MobileServices graph data and return JSON response.
+
+    This function retrieves MobileServices graph data including critical and error logs count with date,
+    warning logs count with date, and constructs the response.
+
+    Parameters:
+    - request: HTTP request object.
+
+    Returns:
+    - JsonResponse: JSON response containing MobileServices graph data.
+
+    Raises:
+    - Exception: If an error occurs during the execution, an error JSON response
+      with the error message is returned with a status code of 500.
+    """
     log_file = 'mobileservices'
-    all_logs_critical_error_count_with_date = get_all_logs_critical_error_count_with_date()
-    all_logs_critical_error_date = all_logs_date_critical_error_list(all_logs_critical_error_count_with_date)
-    all_logs_critical_error_date_only = get_critical_error_date(all_logs_critical_error_count_with_date)
-    mobileservices_warning_logs_count_with_date = get_mobileservices_warning_logs_count_with_date()
-    mobileservices_warning_date_list = get_mobileservices_warning_date(mobileservices_warning_logs_count_with_date)
-    mobileservices_date_with_warning_count_list = mobileservices_date_warning_list(mobileservices_warning_logs_count_with_date)
-    mobileservices_critical_error_warning_log_date_in_list = get_critical_error_warning_date_in_list(mobileservices_warning_date_list,all_logs_critical_error_date_only)
-    mobileservices_critical_error_warning_log_date_in_list_in_str = convert_critical_error_warning_log_date_in_list_to_str(mobileservices_critical_error_warning_log_date_in_list)
-    log_date, data = get_critical_error_warning_data(mobileservices_critical_error_warning_log_date_in_list_in_str, mobileservices_date_with_warning_count_list,all_logs_critical_error_date,log_file,index_dictionary)
-    response = {
-        'log_date':log_date,
-        'data':data
-    }
-    return JsonResponse(response)
+    modelName = Mobileservices_logs
+    log_warning = 'mobileservices_warning'
 
-
+    return get_graph_data(log_file,modelName,log_warning)
 
 
 def get_reports_graph_data(request):
+    """
+    Retrieve Reports graph data and return JSON response.
+
+    This function retrieves Reports graph data including critical and error logs count with date,
+    warning logs count with date, and constructs the response.
+
+    Parameters:
+    - request: HTTP request object.
+
+    Returns:
+    - JsonResponse: JSON response containing Reports graph data.
+
+    Raises:
+    - Exception: If an error occurs during the execution, an error JSON response
+      with the error message is returned with a status code of 500.
+    """
     log_file = 'reports'
-    all_logs_critical_error_count_with_date = get_all_logs_critical_error_count_with_date()
-    all_logs_critical_error_date = all_logs_date_critical_error_list(all_logs_critical_error_count_with_date) 
-    all_logs_critical_error_date_only = get_critical_error_date(all_logs_critical_error_count_with_date)
-    reports_warning_logs_count_with_date = get_reports_warning_logs_count_with_date()
-    reports_warning_date_list = get_reports_warning_date(reports_warning_logs_count_with_date)
-    reports_date_with_warning_count_list = reports_date_warning_list(reports_warning_logs_count_with_date)
-    reports_critical_error_warning_log_date_in_list = get_critical_error_warning_date_in_list(reports_warning_date_list,all_logs_critical_error_date_only)
-    reports_critical_error_warning_log_date_in_list_in_str = convert_critical_error_warning_log_date_in_list_to_str(reports_critical_error_warning_log_date_in_list)
-    log_date, data = get_critical_error_warning_data(reports_critical_error_warning_log_date_in_list_in_str, reports_date_with_warning_count_list,all_logs_critical_error_date,log_file,index_dictionary)
-    response = {
-        'log_date':log_date,
-        'data':data
-    }
-
-    return JsonResponse(response)
-
-
+    modelName = Reports_logs
+    log_warning = 'reports_warning'
+    return get_graph_data(log_file,modelName,log_warning)
 
 
 def get_piechart_data(request):
+    """
+    Retrieve pie chart data for warning, critical, and error logs across different log types,
+    and return a JSON response.
+
+    This function retrieves data for warning, critical, and error logs for Youtility, Mobile Services,
+    and Reports, converts the queryset results to lists, and constructs the response.
+
+    Parameters:
+    - request: HTTP request object.
+
+    Returns:
+    - JsonResponse: JSON response containing pie chart data.
+
+    Raises:
+    - Exception: If an error occurs during the execution, an error JSON response
+      with the error message is returned with a status code of 500.
+    """
 
     youtility_warning= get_youtility_warning_top_method()
     mobileservices_warning = get_mobileservices_warning_top_method()
     reports_warning = get_reports_warning_top_method()
+
     youtility_critical = get_critical_top_method('youtility4')
     mobileservices_critical = get_critical_top_method('mobileservice')
     reports_critical = get_critical_top_method('reports')
-    youtility_error = get_error_top_method('youtility4')
+
+    youtility_error = get_error_top_method('youtility4')    
     mobileservices_error = get_error_top_method('mobileservice')
     reports_error = get_error_top_method('reports')
     
@@ -331,18 +276,10 @@ def get_piechart_data(request):
     method_name = []
     no_of_times_called = []
     for x in data:
-        print(x)
         method_name.append(x[0])
         no_of_times_called.append(x[1])
-    print(method_name)
-    print(no_of_times_called)
-    # method_name,no_of_times_called = get_response_data(response)
-    # print(method_name)
-    # print(no_of_times_called)
     response = {
         'method_name':method_name,
         'no_of_times_called':no_of_times_called
     }
     return JsonResponse(response)
-
-

@@ -1,54 +1,40 @@
 
-footer {
-    background-color: #f8f9fa;
-    text-align: center;
-    position:fixed;
-    left:0;
-    bottom:0;
-    width:100%;
-    
-}
-
-.dropdown-container{
-    background-color:blue;
-    height:auto;
-    width:100%;
-}
 
 #youtility_logs{
-    
     display: none;
-    width: 100%;
-    
+    width: 89%;
+    padding: 1em;
+    margin-left: 12em;
     height: auto;
+    @media screen and (max-width: 768px) {
+      width: 100%; /* Change width to full width on smaller screens */
+      margin-left: 0; /* Remove left margin on smaller screens */
+  }
 }
 
 #mobileserives_logs{
     display: none;
-    width: 100%;
-    height: 95vh;
+    width: 89%;
+    padding: 1em;
+    margin-left: 12em;
+    height: auto;
 }
 
 #reports_logs{
     display: none;
-    width: 100%;
-    height: 98vh;
+    width: 89%;
+    padding: 1em;
+    margin-left: 12em;
+    height: auto;
 }
 
 #error_logs{
     display: none;
-    width: 100%;
-    height: 98VH;
+    width: 89%;
+    padding: 1em;
+    margin-left: 12em;
+    height: auto;
 }
-
-footer .container p{
-    margin:0px;
-}
-/* 
-label, input{ 
-    display: none;
-} */
-
 
 .modal-table td {
     vertical-align: top;
@@ -58,30 +44,30 @@ label, input{
     overflow-x: auto;
 }
 
-.log-message {
+/* .log-message {
     text-align: left; 
     white-space: pre-wrap;
     overflow-x: auto;
-}
+} */
 
 
 .sidebar {
     min-height: 100vh; /* Full height */
-    width: 200px; /* Set the width of the sidebar */
+    width: 11%; /* Set the width of the sidebar */
     position: fixed; /* Fixed Sidebar (stay in place on scroll) */
     z-index: 1; /* Stay on top */
     top: 0; /* Stay at the top */
     left: 0;
     background-color: #01569a; /* Sidebar background color */
     overflow-x: hidden; /* Disable horizontal scroll */
-    padding-top: 20px;
+    padding-top: 1.25em;
 }
 
 /* Sidebar links */
 .sidebar a {
-    padding: 10px 15px;
+    padding: 0.625em 0.9375em;
     text-decoration: none;
-    font-size: 18px;
+    font-size: 1.125em;
     color: white;
     display: block;
 }
@@ -93,13 +79,7 @@ label, input{
 /* Main content */
 .main-content {
     /* margin-left: 250px; */
-    margin-left: 190px;
-}
-
-
-.material-symbols-outlined{
-  position: absolute;
-  margin-left: -370px;
+    margin-left: 11.875em;
 }
 
 
@@ -108,8 +88,8 @@ label, input{
     width: 100%;
     text-align: center;
     background-color: #01569a;
-    padding: 5px;
-    margin:0px 0px 5px 0px;
+    padding: 0.3125em;
+    margin:0px 0px 0.3125em 0px;
     color: white;
 }
 
@@ -345,3 +325,6 @@ label, input{
   width: 1100px;
 }
 
+#myDounghtChart{
+  font-weight: 900 !important;
+}

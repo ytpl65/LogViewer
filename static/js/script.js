@@ -136,6 +136,7 @@ document.getElementById('youtility_logs_dropdown').onclick = function () {
               { "data": "log_message"},
               {"data": "view", "width":"5%"}
           ],
+          responsive:true,
           dom: 'lrtip',
           "columnDefs":[
             {
@@ -576,7 +577,6 @@ function render_graph(date, data, labels){
             hidden: false, 
             borderWidth:1.5
         },
-         
       ]
     };
 
