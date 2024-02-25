@@ -112,6 +112,7 @@ def get_particular_data(request, pk:int,log_type:str, is_error_table:str)-> Json
                 Model = Reports_logs
             log_data = get_object_or_404(Model,id=pk)
         response = construct_response(log_data,Model)
+        print(response)
         return JsonResponse({'data':response})
     except Exception as e:
         return JsonResponse({'error':str(e)},status=500)
@@ -135,18 +136,19 @@ def get_dashboard_data(request):
       with the error message is returned with a status code of 500.
     """
     try:
-        youtility_critical_count = Error_logs.objects.filter(log_level='CRITICAL',log_file_type_name='youtility4').count()
-        youtility_error_count = Error_logs.objects.filter(log_level='ERROR',log_file_type_name = 'youtility4').count()
-        youtility_warning_count = Youtility_logs.objects.filter(log_level='WARNING').count()
 
-        mobileservices_critical_count = Error_logs.objects.filter(log_level='CRITICAL',log_file_type_name='mobileservice').count() 
-        mobileservices_error_count = Error_logs.objects.filter(log_level='ERROR',log_file_type_name='mobileservice').count()
-        mobileservices_warning_count = Mobileservices_logs.objects.filter(log_level='WARNING').count()
-
-        reports_critical_count = Error_logs.objects.filter(log_level='CRITICAL',log_file_type_name='reports').count()  
-        reports_error_count = Error_logs.objects.filter(log_level='ERROR',log_file_type_name='reports').count()
-        reports_warning_count = Reports_logs.objects.filter(log_level='WARNING').count()
+        youtility_critical_count = Error_logs.log_manager.count_by_level_and_file_type('CRITICAL','youtility4')
+        youtility_error_count = Error_logs.log_manager.count_by_level_and_file_type('ERROR','youtility4')
+        youtility_warning_count = Youtility_logs.log_manager.count_by_level_and_file_type('WARNING')
         
+        mobileservices_critical_count = Error_logs.log_manager.count_by_level_and_file_type('CRITICAL','mobileservice')
+        mobileservices_error_count = Error_logs.log_manager.count_by_level_and_file_type('ERROR','mobileservice')
+        mobileservices_warning_count = Mobileservices_logs.log_manager.count_by_level_and_file_type('WARNING')
+
+        reports_critical_count = Error_logs.log_manager.count_by_level_and_file_type('CRITICAL','reports')  
+        reports_error_count = Error_logs.log_manager.count_by_level_and_file_type('ERROR','reports')
+        reports_warning_count = Reports_logs.log_manager.count_by_level_and_file_type('WARNING')
+
         response = {
             'youtility_critical':youtility_critical_count,
             'youtility_error':youtility_error_count,

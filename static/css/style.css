@@ -39,17 +39,19 @@
 .modal-table td {
     vertical-align: top;
     text-align: left; 
-    white-space: pre-wrap;
     padding: 10px;
     overflow-x: auto;
 }
 
-/* .log-message {
+.log-message {
     text-align: left; 
     white-space: pre-wrap;
     overflow-x: auto;
-} */
+}
 
+.modal-body span{
+  padding-left: 20px;
+}
 
 .sidebar {
     min-height: 100vh; /* Full height */

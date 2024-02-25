@@ -1,5 +1,5 @@
 from django.db import models
-
+from .managers import LogManager
 # Create your models here.
 class Youtility_logs(models.Model):
 
@@ -8,6 +8,8 @@ class Youtility_logs(models.Model):
    method_name = models.CharField(max_length = 255)
    log_message = models.TextField()
    log_file_type_name = models.CharField(max_length=20,null=True)
+   objects = models.Manager()
+   log_manager = LogManager()
 
    def __str__(self):
       return f"{self.timestamp} + {self.log_level}"
@@ -23,7 +25,10 @@ class Reports_logs(models.Model):
    method_name = models.CharField(max_length = 255)
    log_message = models.TextField()
    log_file_type_name = models.CharField(max_length=20,null=True)
+   objects = models.Manager()
+   log_manager = LogManager()
    
+
    def __str__(self):
       return f"{self.timestamp} + {self.log_level}"
    
@@ -38,7 +43,10 @@ class Mobileservices_logs(models.Model):
    method_name = models.CharField(max_length = 255)
    log_message = models.TextField()
    log_file_type_name = models.CharField(max_length=20,null=True)
+   objects = models.Manager()
+   log_manager = LogManager()
    
+
    def __str__(self):
       return f"{self.timestamp} + {self.log_level}"
    
@@ -55,7 +63,10 @@ class Error_logs(models.Model):
    traceback = models.TextField()
    exceptionName = models.TextField()
    log_file_type_name = models.CharField(max_length=20,null=True)
+   objects = models.Manager()
+   log_manager = LogManager()
    
+
    def __str__(self):
       return f"{self.timestamp} + {self.log_level}"
    

@@ -48,14 +48,6 @@ function toUserFriendlyTimeStamp(data, type, row){
     return ''; // Return an empty string or the original data for non-display types, depending on your needs.
 }
 
-// $(document).ready(function() {
-//     $(`a.view`).click(function(e){
-//         e.preventDefault();
-//         console.log("Anchor Tag Clicked")
-
-//     })
-// })
-
 function formattedJsonData(data){
     var formattedJson = JSON.stringify(data, null, 2);
     var formattedData = formattedJson.replace(/\\n/g, "<br>");
@@ -72,7 +64,6 @@ $(document).ready(function() {
         var id = $(this).attr('id')
         var log_type = $(this).attr('log_type')
         var is_error_table_data = $(this).attr('is_error_table_data')
-        console.log(id ,log_type, is_error_table_data)
         $.ajax({
             url:`particular_id_data/${id}/${log_type}/${is_error_table_data}`,
             dataType:'json',
@@ -81,25 +72,25 @@ $(document).ready(function() {
                 var timestamp = toUserFriendlyDateTime(response.timestamp)
                 var log_type = response.log_type
                 if (log_type === undefined){
-                    console.log("Normal Log")
+                    document.getElementById('tracebackrow').style.display='none';
+                    document.getElementById('exceptionnamerow').style.display='none';
                     $('#timestampValue').text(timestamp);
                     $('#logLevelValue').text(response.log_level);
                     $(`#methodNameValue`).text(response.method_name);
-                    // var formattedJson = JSON.stringify(response.log_message, null, 2)
-                    // var formattedData = formattedJson.replace(/\\n/g, "<br>")
                     formattedData = formattedJsonData(response.log_message)
                     $(`#logmessageValue`).html(formattedData);
 
                 }
                 else{
-                    console.log("Error Log", log_type)
+                    document.getElementById('tracebackrow').style.display='block';
+                    document.getElementById('exceptionnamerow').style.display='block';
                     $('#timestampValue').text(timestamp);
                     $('#logLevelValue').text(response.log_level);
                     $(`#methodNameValue`).text(response.method_name);
-                    // var formattedJson = JSON.stringify(response.log_message, null, 2)
-                    // var formattedData = formattedJson.replace(/\\n/g, "<br>")
                     formattedData = formattedJsonData(response.log_message)
                     $(`#logmessageValue`).html(formattedData);
+                    $(`#tracebackValue`).html(response.traceback);
+                    $(`#exceptionnameValue`).html(response.exceptionname);
 
                 }
                 
@@ -113,14 +104,12 @@ $(document).ready(function() {
 get_dashboard_data()
 
 document.getElementById('youtility_logs_dropdown').onclick = function () {
-  console.log('Youtility Logs Show')
   document.getElementById('youtility_logs').style.display='block';
   document.getElementById('mobileserives_logs').style.display='none';
   document.getElementById('reports_logs').style.display='none';
   document.getElementById('error_logs').style.display='none';
   document.getElementById('dashboard').style.display = 'none'
     
-  console.log("Server Side Code")
     var table = $('#youtility_logs_table').DataTable({
            retrieve: true,
           "processing": true,
@@ -181,7 +170,6 @@ document.getElementById('youtility_logs_dropdown').onclick = function () {
 
 // mobileservicelogs
 document.getElementById('mobileserives_logs_dropdown').onclick = function () {
-  console.log('MobileService Logs Show')
   document.getElementById('youtility_logs').style.display='none';
   document.getElementById('mobileserives_logs').style.display='block';
   document.getElementById('reports_logs').style.display='none';
@@ -249,16 +237,13 @@ document.getElementById('mobileserives_logs_dropdown').onclick = function () {
     }
 
 document.getElementById('reports_logs_dropdown').onclick = function () {
-    console.log('Youtility Logs Show')
     document.getElementById('reports_logs').style.display='block';
     document.getElementById('youtility_logs').style.display='none';
     document.getElementById('mobileserives_logs').style.display='none';
     document.getElementById('error_logs').style.display='none';
     document.getElementById('dashboard').style.display = 'none'
     
-    console.log("Outside Ajax Code")
     $(function () {
-        console.log("Inside")
     var table = $('#reports_logs_table').DataTable(
             {
             retrieve: true,
@@ -324,7 +309,6 @@ document.getElementById('errors_logs_dropdown').onclick = function (){
     document.getElementById('error_logs').style.display='block';
     document.getElementById('dashboard').style.display = 'none'
 
-    console.log("Starting Datablae Code")
     $(function (){
     var table = $('#error_logs_table').DataTable(
             {
@@ -399,7 +383,6 @@ document.getElementById('errors_logs_dropdown').onclick = function (){
 $(function(){
     $("button#sendComment").click(function(){
         var comment = $('developerComment').val()
-        console.log("Form Data Submitted", comment)
     })
 })
 
@@ -424,10 +407,8 @@ function get_chart_data(){
                 url:`get_piechart_data`,
                 dataType:`json`,
                 success:function(data){
-                    console.log(data)
                     var  method_name_arr = data.method_name 
                     var no_of_times_called = data.no_of_times_called 
-                    console.log(method_name_arr, no_of_times_called)
                     render_chart(method_name_arr,no_of_times_called)
                 }
             }
@@ -438,7 +419,6 @@ function get_chart_data(){
 get_chart_data()
 
 function render_dasboard_data(data){
-    console.log(data)
     var youtility_critical_value = data['youtility_critical']
     var youtility_error_value = data['youtility_error']
     var youtility_warning_value = data['youtility_warning']
@@ -448,7 +428,6 @@ function render_dasboard_data(data){
     var reports_critical_value = data['reports_critical']
     var reports_error_value = data['reports_error']
     var reports_warning_value =  data['reports_warning']
-    console.log(youtility_critical_value,youtility_error_value,youtility_warning_value)
     $('#youtility-critical-value').text(youtility_critical_value.toLocaleString());
     $('#youtility-error-value').text(youtility_error_value.toLocaleString());
     $('#youtility-warning-value').text(youtility_warning_value.toLocaleString());
@@ -462,7 +441,6 @@ function render_dasboard_data(data){
 
 
 document.getElementById('dashboard-page').onclick = function(){
-    console.log("Dashboard");
     document.getElementById('dashboard').style.display = 'block'
     
     document.getElementById('reports_logs').style.display='none';
@@ -483,7 +461,6 @@ function get_youtility_graph_data(){
             success: function(data){
                 var date = data['log_date']
                 var log_data = data['data']
-                console.log(log_data)
                 var labels = ['Youtility - Critical','Youtility - Error','Youtility - Warning']
                 render_graph(date, log_data, labels)
             }
@@ -499,8 +476,6 @@ function get_mobileservices_graph_data(){
             success: function(data){
                 var date = data['log_date']
                 var log_data = data['data']
-                console.log(date)
-                console.log(log_data)
                 var labels = ['Mobileservices - Critical','Mobileservices - Error','Mobileservices - Warning']
                 render_graph(date, log_data, labels)
             }
@@ -516,7 +491,6 @@ function get_reports_graph_data(){
             success: function(data){
                 var date = data['log_date']
                 var log_data = data['data']
-                console.log(log_data)
                 var labels = ['Reports - Critical','Reports - Error','Reports - Warning']
                 render_graph(date, log_data, labels)
             }
@@ -526,20 +500,17 @@ function get_reports_graph_data(){
 
 
 document.getElementById('youtility-graph').onclick = function(){
-    console.log('youtility-log')
     get_youtility_graph_data()
  
 }
 
 document.getElementById('mobileservice-graph').onclick = function(){
-    console.log('mobileservice-log');
     get_mobileservices_graph_data()
     // var mobileservices_graph_data = [[10,32,24,10,19,22,18],[12,34,26,28,12,29,14],[10,32,24,0,19,22,18]]
     // // myChart = render_graph(mobileservices_graph_data)
 }
 
 document.getElementById('reports-graph').onclick = function(){
-    console.log('reports-log');
     get_reports_graph_data()
     var reports_graph_data = [[10,32,16,12,26,19,11,13,15],[12,34,26,28,12,29,14],[10,32,24,10,19,22,18]]
     // myChart = render_graph(reports_graph_data)
@@ -547,7 +518,6 @@ document.getElementById('reports-graph').onclick = function(){
 
 
 function render_graph(date, data, labels){
-    console.log(document.getElementById('myChart'))
     var ctx = document.getElementById('myChart').getContext('2d');
     if(myChart){
         myChart.destroy()

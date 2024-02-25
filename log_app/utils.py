@@ -460,59 +460,39 @@ def convert_queryset_to_list(data):
         print(f"An error occured:{e}")
         return []
 
-def get_top_methods(log_file_type_name):
-    return (
-        Error_logs.objects
-        .filter(log_file_type_name=log_file_type_name)
-        .values('method_name')
-        .annotate(no_of_times_called=Count('id'))
-        .order_by('-no_of_times_called')[:3]
-    )
+# def get_top_methods(log_file_type_name):
+#     return (
+#         Error_logs.objects
+#         .filter(log_file_type_name=log_file_type_name)
+#         .values('method_name')
+#         .annotate(no_of_times_called=Count('id'))
+#         .order_by('-no_of_times_called')[:3]
+#     )
 
 def get_critical_top_method(log_file_type_name):
     """This function retrieves CRITICAL log method name and number of times it is called in descending order limit 1"""
-    queryset = Error_logs.objects\
-    .filter(log_file_type_name= log_file_type_name, log_level='CRITICAL') \
-    .values('method_name') \
-    .annotate(no_of_times_called=Count('method_name')) \
-    .order_by('-no_of_times_called')[:1]
+    queryset = Error_logs.log_manager.get_top_critical_method(log_file = log_file_type_name)
     return queryset
 
 def get_error_top_method(log_file_type_name):
     """This function retrieves ERROR log method name and number of times it is called in descending order limit 1"""
-    queryset = Error_logs.objects \
-    .filter(log_file_type_name= log_file_type_name, log_level='ERROR') \
-    .values('method_name') \
-    .annotate(no_of_times_called=Count('method_name')) \
-    .order_by('-no_of_times_called')[:1]
+    queryset = Error_logs.log_manager.get_top_error_method(log_file = log_file_type_name)
     return queryset
 
 
 def get_youtility_warning_top_method():
     """This function retrieves WARNING log method name and number of times it is called in descending order limit 1"""
-    queryset = Youtility_logs.objects \
-    .filter(log_level='WARNING') \
-    .values('method_name') \
-    .annotate(no_of_times_called=Count('method_name')) \
-    .order_by('-no_of_times_called')[:1]
+    queryset = Youtility_logs.log_manager.get_top_warning_method()
     return queryset
 
 def get_mobileservices_warning_top_method():
     """This function retrieves WARNING log method name and number of times it is called in descending order limit 1"""
-    queryset = Mobileservices_logs.objects \
-    .filter(log_level='WARNING') \
-    .values('method_name') \
-    .annotate(no_of_times_called=Count('method_name')) \
-    .order_by('-no_of_times_called')[:1]
+    queryset = Mobileservices_logs.log_manager.get_top_warning_method()
     return queryset
 
 def get_reports_warning_top_method():
     """This function retrieves WARNING log method name and number of times it is called in descending order limit 1"""
-    queryset = Reports_logs.objects \
-    .filter(log_level='WARNING') \
-    .values('method_name') \
-    .annotate(no_of_times_called=Count('method_name')) \
-    .order_by('-no_of_times_called')[:1]
+    queryset = Reports_logs.log_manager.get_top_warning_method()
     return queryset
 
 
@@ -698,7 +678,7 @@ def construct_response(log_data: Union[Error_logs,Youtility_logs,Mobileservices_
         'method_name':log_data.method_name,
         'log_message':log_data.log_message
     }
-    if isinstance(Model,Error_logs):
+    if(Model == Error_logs):
         response.update({
             'traceback':log_data.traceback,
             'exceptionname':log_data.exceptionName,
@@ -726,9 +706,9 @@ def get_logs(request, model_class):
         order_by_field = response_data[6]
         filter = query_filter(request)
         if filter:
-            log_entries = model_class.objects.filter(**filter)
+            log_entries = model_class.log_manager.get_filtered_data(**filter)
         else:
-            log_entries = model_class.objects.all().order_by(order_by_field)
+            log_entries = model_class.log_manager.get_filtered_data(order_by_field)
         paginator = Paginator(log_entries, length)
         page_number = (start // length) + 1
         page_obj = paginator.get_page(page_number)
